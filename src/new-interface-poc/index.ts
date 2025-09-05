@@ -30,6 +30,37 @@ type FormNode<T> = IsPlainObject<T> extends true
   ? ObjectFormNode<T & object>
   : PrimitiveFormNode<T>;
 
+// remove this and use it from the module it's defined on
+// was put here because I was lazy
+const deepPick = (
+  obj: any,
+  condition: (value: any, key: string) => boolean
+) => {
+  const result: any = Array.isArray(obj) ? [] : {};
+
+  const recurse = (current: any, path: string[]) => {
+    if (typeof current !== "object" || current === null) {
+      return;
+    }
+
+    for (const key in current) {
+      if (current.hasOwnProperty(key)) {
+        const value = current[key];
+        const newPath = path.concat(key);
+
+        if (typeof value === "object" && value !== null && !_.isDate(value)) {
+          recurse(value, newPath);
+        } else if (condition(value, key)) {
+          _.set(result, newPath, value);
+        }
+      }
+    }
+  };
+
+  recurse(obj, []);
+  return result;
+};
+
 const createControl = <T>(
   formState: Ref<Object.Partial<object, "deep">>,
   defaultFormState: Ref<Object.Partial<object, "deep">>,
@@ -46,7 +77,18 @@ const createControl = <T>(
     },
   });
 
-  const dirty = computed(() => !_.isEqual(state.value, defaultValue.value));
+  /**
+   * Check if the form is dirty
+   * We are filtering both inputs of possibly undefined values to avoid false positives, that might occur
+   * when some property is not defined in some cases, and there but with value of `undefined` in some others
+   */
+  const dirty = computed(
+    () =>
+      !_.isEqual(
+        deepPick(state.value, (v) => v !== undefined),
+        deepPick(defaultValue.value, (v) => v !== undefined)
+      )
+  );
 
   const clear = () => {
     _.set(formState.value, path, undefined);
@@ -119,8 +161,8 @@ const createControlTree = <T extends object>(
 const useFormControl = <T extends object>(
   defaultState: Object.Partial<T, "deep"> = {}
 ): FormControl<T> => {
-  const defaultFormState = shallowRef(defaultState);
-  const state = ref<Object.Partial<T, "deep">>(defaultState);
+  const defaultFormState = shallowRef(_.cloneDeep(defaultState));
+  const state = ref<Object.Partial<T, "deep">>(_.cloneDeep(defaultState));
   const controlsCache = new Map<string, InputControl<unknown>>();
 
   const controlsTree = createControlTree<T>(
@@ -144,16 +186,30 @@ type State = {
   tags: string[];
 };
 
-const testControl = useFormControl<State>();
+const testControl = useFormControl<State>({
+  address: {
+    city: "Gotham",
+  },
+});
 
-testControl.controlsTree.address.city.control.state.value = "New York";
+testControl.controlsTree.age.control.state.value = 21;
+testControl.controlsTree.address.control.state.value = {
+  street: "123 Main St",
+  city: "Metropolis",
+};
 testControl.controlsTree.name.control.state.value = "John Doe";
 
 console.log(
   "aaaaaaaaaaaaaa",
+  testControl.controlsTree.name.control.defaultValue.value,
   testControl.controlsTree.name.control.state.value,
   " - ",
+  testControl.controlsTree.address.control.defaultValue.value,
   testControl.controlsTree.address.control.state.value,
   " - ",
+  testControl.controlsTree.address.city.control.defaultValue.value,
+  testControl.controlsTree.address.city.control.state.value,
+  " - ",
+  testControl.controlsTree.age.control.defaultValue.value,
   testControl.controlsTree.age.control.state.value
 );
