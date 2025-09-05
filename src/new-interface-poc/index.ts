@@ -1,11 +1,21 @@
-import { shallowRef, type Ref } from "vue";
+import { computed, ref, shallowRef, type ComputedRef, type Ref } from "vue";
 import type { IsPlainObject } from "./types/utils";
 import type { Object } from "ts-toolbelt";
-import { get } from "lodash";
+import _ from "lodash";
 
 type InputControl<T> = {
   state: Ref<T | undefined>;
+  defaultValue: ComputedRef<T | undefined>;
+  dirty: ComputedRef<boolean>;
+  clear: () => void;
+  reset: () => void;
+  updateDefaultValue: (newDefaultValue: T) => void;
   // .. all other input metadata
+};
+
+type FormControl<T extends object> = {
+  controlsTree: FormNode<T>;
+  // .. all other root form api (validate, submit, etc..)
 };
 
 type PrimitiveFormNode<T> = {
@@ -20,33 +30,68 @@ type FormNode<T> = IsPlainObject<T> extends true
   ? ObjectFormNode<T & object>
   : PrimitiveFormNode<T>;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const controlsCache = new Map<string, InputControl<any>>();
+const createControl = <T>(
+  formState: Ref<Object.Partial<object, "deep">>,
+  defaultFormState: Ref<Object.Partial<object, "deep">>,
+  path: string[]
+): InputControl<T> => {
+  // Updating the default value should be discouraged, so it's exposed as a read-only computed
+  const defaultValue = computed(() => _.get(defaultFormState.value, path));
+  const state = computed({
+    get() {
+      return _.get(formState.value, path);
+    },
+    set(value: T) {
+      _.set(formState.value, path, value);
+    },
+  });
 
-const createControl = <T>(defaultValue?: T): InputControl<T> => {
-  const state = shallowRef<T | undefined>(defaultValue); // I don't remember, how single state was handled, but it's not the main point of this now
+  const dirty = computed(() => !_.isEqual(state.value, defaultValue.value));
+
+  const clear = () => {
+    _.set(formState.value, path, undefined);
+  };
+  const reset = () => {
+    state.value = defaultValue.value;
+  };
+  const updateDefaultValue = (newDefaultValue: T) => {
+    _.set(defaultFormState.value, path, newDefaultValue);
+  };
 
   return {
+    defaultValue,
     state,
+    dirty,
+    clear,
+    reset,
+    updateDefaultValue,
   };
 };
 
-const getOrCreateControl = <T>(path: string[], defaultValue?: T) => {
+const getOrCreateControl = (
+  formState: Ref<Object.Partial<object, "deep">>,
+  defaultFormState: Ref<Object.Partial<object, "deep">>,
+  controlsCache: Map<string, InputControl<unknown>>,
+  path: string[]
+) => {
   const concatenatedPath: string = path.join(".");
 
-  if (controlsCache.has(concatenatedPath)) {
-    return controlsCache.get(concatenatedPath);
+  if (!controlsCache.has(concatenatedPath)) {
+    controlsCache.set(
+      concatenatedPath,
+      createControl(formState, defaultFormState, path)
+    );
   }
 
-  const newControl = createControl(defaultValue);
-  controlsCache.set(concatenatedPath, newControl);
-  return newControl;
+  return controlsCache.get(concatenatedPath);
 };
 
 const createControlTree = <T extends object>(
-  defaultValue: Object.Partial<T, "deep"> = {}
+  formState: Ref<Object.Partial<T, "deep">>,
+  defaultFormState: Ref<Object.Partial<T, "deep">>,
+  controlsCache: Map<string, InputControl<unknown>>
 ) => {
-  const buildHandler = (path: string[] = []) => ({
+  const buildProxyHandler = (path: string[] = []) => ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     get(target: any, handlerPath: string) {
       const fullPath = [...path, handlerPath];
@@ -54,16 +99,39 @@ const createControlTree = <T extends object>(
       if (!(handlerPath in target)) {
         target[handlerPath] = new Proxy(
           {
-            control: getOrCreateControl(fullPath, get(defaultValue, fullPath)),
+            control: getOrCreateControl(
+              formState,
+              defaultFormState,
+              controlsCache,
+              fullPath
+            ),
           },
-          buildHandler(fullPath)
+          buildProxyHandler(fullPath)
         );
       }
       return target[handlerPath];
     },
   });
 
-  return new Proxy<FormNode<T>>({} as FormNode<T>, buildHandler());
+  return new Proxy<FormNode<T>>({} as FormNode<T>, buildProxyHandler());
+};
+
+const useFormControl = <T extends object>(
+  defaultState: Object.Partial<T, "deep"> = {}
+): FormControl<T> => {
+  const defaultFormState = shallowRef(defaultState);
+  const state = ref<Object.Partial<T, "deep">>(defaultState);
+  const controlsCache = new Map<string, InputControl<unknown>>();
+
+  const controlsTree = createControlTree<T>(
+    state,
+    defaultFormState,
+    controlsCache
+  );
+
+  return {
+    controlsTree,
+  };
 };
 
 type State = {
@@ -76,14 +144,16 @@ type State = {
   tags: string[];
 };
 
-const testControl = createControlTree<State>();
+const testControl = useFormControl<State>();
 
-testControl.address.city.control.state.value = "New York";
-testControl.name.control.state.value = "John Doe";
+testControl.controlsTree.address.city.control.state.value = "New York";
+testControl.controlsTree.name.control.state.value = "John Doe";
 
 console.log(
   "aaaaaaaaaaaaaa",
-  testControl.name.control.state.value,
+  testControl.controlsTree.name.control.state.value,
   " - ",
-  testControl.address.city.control.state.value
+  testControl.controlsTree.address.control.state.value,
+  " - ",
+  testControl.controlsTree.age.control.state.value
 );
