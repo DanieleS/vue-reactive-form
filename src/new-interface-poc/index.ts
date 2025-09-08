@@ -1,5 +1,5 @@
 import { computed, ref, shallowRef, type ComputedRef, type Ref } from "vue";
-import type { IsPlainObject } from "./types/utils";
+import type { IsArray, IsPlainObject } from "./types/utils";
 import type { Object } from "ts-toolbelt";
 import _ from "lodash";
 
@@ -26,8 +26,15 @@ type ObjectFormNode<T extends object> = PrimitiveFormNode<T> & {
   [Key in keyof T]: FormNode<T[Key]>;
 };
 
+type ArrayFormNode<T extends unknown[]> = PrimitiveFormNode<T> & {
+  [index: number]: FormNode<T[number]>;
+  [Symbol.iterator](): IterableIterator<FormNode<T[number]>>;
+};
+
 type FormNode<T> = IsPlainObject<T> extends true
   ? ObjectFormNode<T & object>
+  : IsArray<T> extends true
+  ? ArrayFormNode<T & unknown[]>
   : PrimitiveFormNode<T>;
 
 // remove this and use it from the module it's defined on
@@ -64,7 +71,7 @@ const deepPick = (
 const createControl = <T>(
   formState: Ref<Object.Partial<object, "deep">>,
   defaultFormState: Ref<Object.Partial<object, "deep">>,
-  path: string[]
+  path: (string | number | symbol)[]
 ): InputControl<T> => {
   // Updating the default value should be discouraged, so it's exposed as a read-only computed
   const defaultValue = computed(() => _.get(defaultFormState.value, path));
@@ -114,7 +121,7 @@ const getOrCreateControl = (
   formState: Ref<Object.Partial<object, "deep">>,
   defaultFormState: Ref<Object.Partial<object, "deep">>,
   controlsCache: Map<string, InputControl<unknown>>,
-  path: string[]
+  path: (string | number | symbol)[]
 ) => {
   const concatenatedPath: string = path.join(".");
 
@@ -133,27 +140,56 @@ const createControlTree = <T extends object>(
   defaultFormState: Ref<Object.Partial<T, "deep">>,
   controlsCache: Map<string, InputControl<unknown>>
 ) => {
-  const buildProxyHandler = (path: string[] = []) => ({
+  const buildProxyHandler = (path: (string | number | symbol)[] = []) => ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    get(target: any, handlerPath: string) {
+    get(target: any, handlerPath: string | number | symbol) {
       const fullPath = [...path, handlerPath];
 
-      if (!(handlerPath in target)) {
-        target[handlerPath] = new Proxy(
-          {
-            control: getOrCreateControl(
+      if (handlerPath === Symbol.iterator) {
+        return function* () {
+          const array = _.get(formState.value, path) ?? [];
+          for (let i = 0; i < array.length; i++) {
+            const iteratorPath = [...path, i];
+            target[i] = buildProxyControl(
               formState,
               defaultFormState,
               controlsCache,
-              fullPath
-            ),
-          },
-          buildProxyHandler(fullPath)
+              iteratorPath
+            );
+            yield target[i];
+          }
+        };
+      }
+
+      if (!(handlerPath in target)) {
+        target[handlerPath] = buildProxyControl(
+          formState,
+          defaultFormState,
+          controlsCache,
+          fullPath
         );
       }
       return target[handlerPath];
     },
   });
+
+  const buildProxyControl = (
+    formState: Ref<Object.Partial<object, "deep">>,
+    defaultFormState: Ref<Object.Partial<object, "deep">>,
+    controlsCache: Map<string, InputControl<unknown>>,
+    path: (string | number | symbol)[]
+  ) =>
+    new Proxy(
+      {
+        control: getOrCreateControl(
+          formState,
+          defaultFormState,
+          controlsCache,
+          path
+        ),
+      },
+      buildProxyHandler(path)
+    );
 
   return new Proxy<FormNode<T>>({} as FormNode<T>, buildProxyHandler());
 };
@@ -213,3 +249,16 @@ console.log(
   testControl.controlsTree.age.control.defaultValue.value,
   testControl.controlsTree.age.control.state.value
 );
+
+testControl.controlsTree.tags.control.state.value = ["a", "b", "c"];
+
+for (const a of testControl.controlsTree.tags) {
+  a.control.state.value = a.control.state.value?.toUpperCase();
+}
+
+const secondTag = testControl.controlsTree.tags[1];
+if (secondTag) {
+  secondTag.control.state.value += "anana";
+}
+
+console.log(testControl.controlsTree.tags.control.state.value);
