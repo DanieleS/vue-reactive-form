@@ -2,21 +2,20 @@
 export const moveItemInArray = <T>(
   originalIndex: number,
   targetIndex: number,
-  list: T[]
+  list: T[],
 ) => {
-  const copy = [...list];
+  const copy = [...list]
 
-  const itemToMove = list[originalIndex];
+  const itemToMove = list[originalIndex]
 
   if (itemToMove === undefined) {
-    return copy;
+    return copy
   }
 
-  const breakpoint =
-    originalIndex < targetIndex ? targetIndex + 1 : targetIndex;
+  const breakpoint = originalIndex < targetIndex ? targetIndex + 1 : targetIndex
 
-  const firstHalf = copy.slice(0, breakpoint).filter((i) => i !== itemToMove);
-  const secondHalf = copy.slice(breakpoint).filter((i) => i !== itemToMove);
+  const firstHalf = copy.slice(0, breakpoint).filter((i) => i !== itemToMove)
+  const secondHalf = copy.slice(breakpoint).filter((i) => i !== itemToMove)
 
-  return [...firstHalf, itemToMove, ...secondHalf];
-};
+  return [...firstHalf, itemToMove, ...secondHalf]
+}

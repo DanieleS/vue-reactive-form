@@ -1,12 +1,12 @@
-import cloneDeep from "lodash/cloneDeep";
-import isEqual from "lodash/isEqual";
-import get from "lodash/get";
-import isSymbol from "lodash/isSymbol";
-import keys from "lodash/keys";
-import set from "lodash/set";
-import type { O } from "ts-toolbelt";
-import type { Ref, UnwrapRef } from "vue";
-import { computed, ref, watch } from "vue";
+import cloneDeep from "lodash/cloneDeep"
+import isEqual from "lodash/isEqual"
+import get from "lodash/get"
+import isSymbol from "lodash/isSymbol"
+import keys from "lodash/keys"
+import set from "lodash/set"
+import type { O } from "ts-toolbelt"
+import type { Ref, UnwrapRef } from "vue"
+import { computed, ref, watch } from "vue"
 import type {
   Controls,
   FormControl,
@@ -17,10 +17,10 @@ import type {
   FormValidationErrorsTree,
   FormControlValidationMeta,
   InputValidationDescriptor,
-} from "./types";
-import { errorSymbol, validationMetaSymbol } from "./symbols";
-import { moveItemInArray } from "./utils/array";
-import { deepPick } from "./utils/object";
+} from "./types"
+import { errorSymbol, validationMetaSymbol } from "./symbols"
+import { moveItemInArray } from "./utils/array"
+import { deepPick } from "./utils/object"
 
 /*
 This is an implementation of a form library that provides a way to create form controls for a form.
@@ -34,23 +34,23 @@ provides utilities to validate and check the state of the form.
 
 export const hasErrorsDeep = (
   errors?: FormValidationErrorsTree<any>,
-  startPath: string[] = []
+  startPath: string[] = [],
 ): boolean => {
-  if (!errors) return false;
+  if (!errors) return false
 
-  const startErrors = startPath.length ? get(errors, startPath) : errors;
+  const startErrors = startPath.length ? get(errors, startPath) : errors
 
-  if (startErrors?.[errorSymbol]?.length) return true;
+  if (startErrors?.[errorSymbol]?.length) return true
   const hasDeepErrors = Object.keys(startErrors ?? {}).some((key) =>
-    hasErrorsDeep(errors, [...startPath, key])
-  );
+    hasErrorsDeep(errors, [...startPath, key]),
+  )
 
-  return hasDeepErrors;
-};
+  return hasDeepErrors
+}
 
 const defaultMeta: FormControlValidationMeta = {
   isRequired: false,
-};
+}
 
 /**
  * This function converts a FormControl state path to a ValidationDescriptor path.
@@ -60,10 +60,10 @@ const defaultMeta: FormControlValidationMeta = {
  * @returns The path of the ValidationDescriptor
  */
 const toInputValidationDescriptorPath = (path: string[]) => {
-  if (!path.length) return path;
+  if (!path.length) return path
 
-  return path.filter((p) => !isSymbol(p) && isNaN(parseInt(p)));
-};
+  return path.filter((p) => !isSymbol(p) && isNaN(parseInt(p)))
+}
 
 /**
  * This function gets the value of a property in a reactive object, given the path.
@@ -75,7 +75,7 @@ const toInputValidationDescriptorPath = (path: string[]) => {
  * @returns The value of the property
  */
 const formGet = (target: any, p: (string | symbol | number)[]) =>
-  p.length ? get(target, p) : target;
+  p.length ? get(target, p) : target
 
 /**
  * This function sets the value of a property in a reactive object, given the path.
@@ -87,14 +87,14 @@ const formGet = (target: any, p: (string | symbol | number)[]) =>
 const formSet = (
   target: Ref<any>,
   p: (string | symbol | number)[],
-  newVal: any
+  newVal: any,
 ) => {
   if (p.length) {
-    set(target, ["value", ...p], newVal);
+    set(target, ["value", ...p], newVal)
   } else {
-    target.value = newVal;
+    target.value = newVal
   }
-};
+}
 
 /**
  * This is the core function of the form control library.
@@ -119,32 +119,32 @@ const buildControls = <T = any>(
   initialValueRef: Ref<any>,
   path: string[],
   refCache: Map<string, any>,
-  validationDescriptor?: InputValidationDescriptor<T>
+  validationDescriptor?: InputValidationDescriptor<T>,
 ): any => {
   const getChildrenInternal = (_target: unknown, p: string) => {
     // Ignore some properties to avoid dev tools hanging
-    if (["getters", Symbol.toStringTag].includes(p)) return;
+    if (["getters", Symbol.toStringTag].includes(p)) return
 
-    const newPath = [...path, p as string];
+    const newPath = [...path, p as string]
 
-    const sPath = newPath.join(".");
+    const sPath = newPath.join(".")
 
     // If the control is already in the cache, return it
     if (refCache.has(sPath)) {
-      return refCache.get(sPath);
+      return refCache.get(sPath)
     }
 
-    const childState = computed(() => formGet(state.value, newPath));
+    const childState = computed(() => formGet(state.value, newPath))
 
     const isDirty = computed(
-      () => !isEqual(childState.value, formGet(initialValueRef.value, newPath))
-    );
+      () => !isEqual(childState.value, formGet(initialValueRef.value, newPath)),
+    )
 
-    const hasErrors = computed(() => hasErrorsDeep(errors.value, newPath));
+    const hasErrors = computed(() => hasErrorsDeep(errors.value, newPath))
 
     watch(childState, () => {
-      formSet(errors, [...newPath, errorSymbol], undefined);
-    });
+      formSet(errors, [...newPath, errorSymbol], undefined)
+    })
 
     // Control is a "window" to the form state
     const control: FormControl<T> = {
@@ -156,44 +156,44 @@ const buildControls = <T = any>(
         initialValueRef,
         newPath,
         refCache,
-        validationDescriptor
+        validationDescriptor,
       ),
       initialValue: computed(() => formGet(initialValueRef.value, newPath)),
       errorMessages: computed(() =>
         (get(errors.value ?? {}, [...newPath, errorSymbol]) ?? []).map(
-          (e: FormValidationError) => e.message
-        )
+          (e: FormValidationError) => e.message,
+        ),
       ),
       hasErrors,
       isValid: computed(() => !hasErrors.value),
       meta: get(
         validationDescriptor,
         [...toInputValidationDescriptorPath(newPath), validationMetaSymbol],
-        defaultMeta
+        defaultMeta,
       ),
-    };
+    }
 
     // Cache the control to avoid creating it multiple times
-    refCache.set(sPath, control);
+    refCache.set(sPath, control)
 
-    return control;
-  };
+    return control
+  }
 
   const childrenGet = (_target: unknown, p: string | symbol) => {
     // If the user is trying to iterate on the properties of the object, we return an iterator
     if (p === Symbol.iterator) {
-      const value = formGet(state.value, path);
-      const keysOfValue = keys(value);
+      const value = formGet(state.value, path)
+      const keysOfValue = keys(value)
 
       return function* () {
         for (const key of keysOfValue) {
-          yield getChildrenInternal(_target, key);
+          yield getChildrenInternal(_target, key)
         }
-      };
+      }
     }
 
-    return getChildrenInternal(_target, p as string);
-  };
+    return getChildrenInternal(_target, p as string)
+  }
 
   /**
    * This is the proxy object used to handle the object controls.
@@ -209,75 +209,75 @@ const buildControls = <T = any>(
     get: childrenGet,
     // make sure that the keys belong to the object (own keys)
     ownKeys() {
-      const value = formGet(state.value, path);
-      return keys(value);
+      const value = formGet(state.value, path)
+      return keys(value)
     },
     // make sure that the keys are enumerable
     getOwnPropertyDescriptor(_target, p: string) {
-      const value = formGet(state.value, path);
-      const keysOfValue = keys(value);
+      const value = formGet(state.value, path)
+      const keysOfValue = keys(value)
 
       if (keysOfValue.includes(p)) {
         return {
           configurable: true,
           enumerable: true,
           writable: false,
-        };
+        }
       }
 
-      return undefined;
+      return undefined
     },
-  });
+  })
 
-  const objectControl = childrenProxy;
+  const objectControl = childrenProxy
 
   const getValueAsArray = () => {
-    const array = formGet(state.value, path);
+    const array = formGet(state.value, path)
     if (!Array.isArray(array) && typeof array !== "undefined") {
-      throw new Error(`value at ${path.join(".")} is not an array`);
+      throw new Error(`value at ${path.join(".")} is not an array`)
     }
 
-    return array;
-  };
+    return array
+  }
 
   const arrayControl = {
     items: childrenProxy,
     size: computed(() => {
-      const array = getValueAsArray();
+      const array = getValueAsArray()
 
-      return array?.length;
+      return array?.length
     }),
     addItem: (value: unknown) => {
-      const array = getValueAsArray();
+      const array = getValueAsArray()
 
-      set(state, ["value", ...path, array?.length ?? 0], cloneDeep(value));
+      set(state, ["value", ...path, array?.length ?? 0], cloneDeep(value))
     },
     removeItem: (...indexes: number[]) => {
-      const array = getValueAsArray();
+      const array = getValueAsArray()
 
       // indexes sorted in descending order so that we don't mess up the indexes when performing the splice
-      const sortedIndexes = indexes.toSorted((a, b) => b - a);
+      const sortedIndexes = indexes.toSorted((a, b) => b - a)
 
       for (const index of sortedIndexes) {
-        array?.splice(index, 1);
+        array?.splice(index, 1)
       }
     },
     moveItem: (from: number, to: number) => {
-      const array = getValueAsArray();
+      const array = getValueAsArray()
 
-      if (!array) return;
+      if (!array) return
 
-      const result = moveItemInArray(from, to, array);
-      set(state, ["value", ...path], result);
+      const result = moveItemInArray(from, to, array)
+      set(state, ["value", ...path], result)
     },
     clear: () => {
-      set(state, ["value", ...path], []);
+      set(state, ["value", ...path], [])
     },
-  };
+  }
 
   const primitiveSetState = (value: UnwrapRef<T>) => {
-    formSet(state, path, value);
-  };
+    formSet(state, path, value)
+  }
 
   const primitiveControl: PrimitiveControl<any> = {
     setState: primitiveSetState,
@@ -285,14 +285,14 @@ const buildControls = <T = any>(
     clear: () => primitiveSetState(undefined as any),
     updateInitialState: (newInitialState: any) =>
       formSet(initialValueRef, path, newInitialState),
-  };
+  }
 
   return {
     asPrimitive: primitiveControl,
     asArray: arrayControl,
     asObject: objectControl,
-  };
-};
+  }
+}
 
 /**
  * This function creates a FormControl object. A FormControl is controller for the entire form.
@@ -340,13 +340,13 @@ const buildControls = <T = any>(
  */
 export const useFormControl = <T = any>(
   initialValue?: O.Partial<{ value: T }, "deep">["value"],
-  { validator, validationDescriptor }: FormValidationOptions<T> = {}
+  { validator, validationDescriptor }: FormValidationOptions<T> = {},
 ): FormControlRoot<T> => {
-  const initialValueRef = ref<T>(initialValue as any);
-  const state = ref<T>(cloneDeep(initialValue) as any);
-  const errors = ref<FormValidationErrorsTree<T>>();
+  const initialValueRef = ref<T>(initialValue as any)
+  const state = ref<T>(cloneDeep(initialValue) as any)
+  const errors = ref<FormValidationErrorsTree<T>>()
 
-  const hasErrors = computed(() => hasErrorsDeep(errors.value));
+  const hasErrors = computed(() => hasErrorsDeep(errors.value))
   /**
    * Check if the form is dirty
    * We are filtering both inputs of possibly undefined values to avoid false positives, that might occur
@@ -356,24 +356,24 @@ export const useFormControl = <T = any>(
     () =>
       !isEqual(
         deepPick(state.value, (v) => v !== undefined),
-        deepPick(initialValueRef.value, (v) => v !== undefined)
-      )
-  );
-  const isValid = computed(() => !hasErrors.value);
+        deepPick(initialValueRef.value, (v) => v !== undefined),
+      ),
+  )
+  const isValid = computed(() => !hasErrors.value)
 
-  const resetErrors = () => (errors.value = undefined);
+  const resetErrors = () => (errors.value = undefined)
 
   const validate = async () => {
-    if (!validator) return Promise.resolve();
+    if (!validator) return Promise.resolve()
 
-    resetErrors();
+    resetErrors()
 
-    errors.value = await validator(state.value as T);
+    errors.value = await validator(state.value as T)
 
-    return !errors.value;
-  };
+    return !errors.value
+  }
 
-  const refCache = new Map<string, any>();
+  const refCache = new Map<string, any>()
 
   return {
     state,
@@ -381,7 +381,7 @@ export const useFormControl = <T = any>(
     isValid,
     errors: computed(() => errors.value),
     errorMessages: computed(
-      () => errors.value?.[errorSymbol]?.map((e) => e.message) ?? []
+      () => errors.value?.[errorSymbol]?.map((e) => e.message) ?? [],
     ),
     resetErrors,
     validate,
@@ -389,9 +389,9 @@ export const useFormControl = <T = any>(
     initialValue: initialValueRef,
     updateInitialState: (newInitialState: T, keepCurrent = false) => {
       if (!keepCurrent) {
-        state.value = cloneDeep(newInitialState) as any;
+        state.value = cloneDeep(newInitialState) as any
       }
-      initialValueRef.value = newInitialState as any;
+      initialValueRef.value = newInitialState as any
     },
     ...(buildControls(
       state,
@@ -399,11 +399,11 @@ export const useFormControl = <T = any>(
       initialValueRef,
       [],
       refCache,
-      validationDescriptor
+      validationDescriptor,
     ) as unknown as Controls<UnwrapRef<T>>),
     meta: validationDescriptor?.[validationMetaSymbol] ?? defaultMeta,
-  } as unknown as FormControlRoot<T>;
-};
+  } as unknown as FormControlRoot<T>
+}
 
 /**
  * Creates a form control for a model reference.
@@ -414,13 +414,13 @@ export const useFormControl = <T = any>(
  * @returns {FormControl<T>} - The form control object.
  */
 export const useModelControl = <T>(
-  modelRef: Ref<T | undefined>
+  modelRef: Ref<T | undefined>,
 ): FormControl<T> => {
-  const control = useFormControl<T>(modelRef.value);
+  const control = useFormControl<T>(modelRef.value)
   watch(modelRef, (value) =>
-    control.asPrimitive.setState(value as NonNullable<T> | undefined)
-  );
-  watch(control.state, (value) => (modelRef.value = value), { deep: true });
+    control.asPrimitive.setState(value as NonNullable<T> | undefined),
+  )
+  watch(control.state, (value) => (modelRef.value = value), { deep: true })
 
-  return control;
-};
+  return control
+}
