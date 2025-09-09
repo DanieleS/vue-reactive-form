@@ -1,9 +1,3 @@
-import cloneDeep from "lodash/cloneDeep"
-import isEqual from "lodash/isEqual"
-import get from "lodash/get"
-import isSymbol from "lodash/isSymbol"
-import keys from "lodash/keys"
-import set from "lodash/set"
 import type { O } from "ts-toolbelt"
 import type { Ref, UnwrapRef } from "@vue/reactivity"
 import { computed, ref, watch } from "@vue/reactivity"
@@ -21,6 +15,7 @@ import type {
 import { errorSymbol, validationMetaSymbol } from "./symbols"
 import { moveItemInArray } from "./utils/array"
 import { deepPick } from "./utils/object"
+import { cloneDeep, get, isEqual, isSymbol, keys, set } from "lodash-es"
 
 /*
 This is an implementation of a form library that provides a way to create form controls for a form.
