@@ -4,7 +4,7 @@ import { cloneDeep } from "lodash-es"
 import type { FormControl, InputControl } from "./types"
 import { createControlsTree } from "./controlsTree"
 
-const useFormControl = <T extends object>(
+export const useFormControl = <T extends object>(
   defaultState: Object.Partial<T, "deep"> = {}
 ): FormControl<T> => {
   const defaultFormState = shallowRef(cloneDeep(defaultState))
