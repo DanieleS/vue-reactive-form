@@ -5,7 +5,7 @@
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "bundler",
-    "types": [],
+    "types": ["vitest/globals"],
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
