@@ -1,12 +1,11 @@
 import type { Ref } from "@vue/reactivity"
-import type { Object } from "ts-toolbelt"
 import type { FormNode, InputControl } from "./types"
 import { get } from "lodash-es"
 import { getInputControl } from "./inputControl"
 
-export const createControlsTree = <T extends object>(
-  formState: Ref<Object.Partial<T, "deep">>,
-  defaultFormState: Ref<Object.Partial<T, "deep">>,
+export const createControlsTree = <TState>(
+  formState: Ref<TState>,
+  defaultFormState: Ref<TState>,
   controlsCache: Map<string, InputControl<unknown>>
 ) => {
   const buildProxyHandler = (path: (string | number | symbol)[] = []) => ({
@@ -43,12 +42,12 @@ export const createControlsTree = <T extends object>(
   })
 
   const buildProxyControl = (
-    formState: Ref<Object.Partial<object, "deep">>,
-    defaultFormState: Ref<Object.Partial<object, "deep">>,
+    formState: Ref<TState>,
+    defaultFormState: Ref<TState>,
     controlsCache: Map<string, InputControl<unknown>>,
     path: (string | number | symbol)[]
-  ) =>
-    new Proxy(
+  ) => {
+    return new Proxy(
       {
         control: getInputControl(
           formState,
@@ -59,6 +58,10 @@ export const createControlsTree = <T extends object>(
       },
       buildProxyHandler(path)
     )
+  }
 
-  return new Proxy<FormNode<T>>({} as FormNode<T>, buildProxyHandler())
+  return new Proxy<FormNode<TState>>(
+    {} as FormNode<TState>,
+    buildProxyHandler()
+  )
 }

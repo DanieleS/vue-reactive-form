@@ -11,7 +11,7 @@ export type InputControl<T> = {
   // .. all other input metadata
 }
 
-export type FormControl<T extends object> = {
+export type FormControl<T> = {
   controlsTree: FormNode<T>
   // .. all other root form api (validate, submit, etc..)
 }
