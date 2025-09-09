@@ -3,7 +3,7 @@ import set from "lodash/set"
 
 export const deepPick = (
   obj: any,
-  condition: (value: any, key: string) => boolean,
+  condition: (value: any, key: string) => boolean
 ) => {
   const result: any = Array.isArray(obj) ? [] : {}
 

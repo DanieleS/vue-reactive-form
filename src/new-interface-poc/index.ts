@@ -1,7 +1,13 @@
-import { computed, ref, shallowRef, type ComputedRef, type Ref } from "vue"
+import {
+  computed,
+  ref,
+  shallowRef,
+  type ComputedRef,
+  type Ref
+} from "@vue/reactivity"
 import type { IsArray, IsPlainObject } from "./types/utils"
 import type { Object } from "ts-toolbelt"
-import _ from "lodash"
+import { cloneDeep, get, isDate, isEqual, set } from "lodash-es"
 
 type InputControl<T> = {
   state: Ref<T | undefined>
@@ -31,18 +37,17 @@ type ArrayFormNode<T extends unknown[]> = PrimitiveFormNode<T> & {
   [Symbol.iterator](): IterableIterator<FormNode<T[number]>>
 }
 
-type FormNode<T> =
-  IsPlainObject<T> extends true
-    ? ObjectFormNode<T & object>
-    : IsArray<T> extends true
-      ? ArrayFormNode<T & unknown[]>
-      : PrimitiveFormNode<T>
+type FormNode<T> = IsPlainObject<T> extends true
+  ? ObjectFormNode<T & object>
+  : IsArray<T> extends true
+  ? ArrayFormNode<T & unknown[]>
+  : PrimitiveFormNode<T>
 
 // remove this and use it from the module it's defined on
 // was put here because I was lazy
 const deepPick = (
   obj: any,
-  condition: (value: any, key: string) => boolean,
+  condition: (value: any, key: string) => boolean
 ) => {
   const result: any = Array.isArray(obj) ? [] : {}
 
@@ -56,10 +61,10 @@ const deepPick = (
         const value = current[key]
         const newPath = path.concat(key)
 
-        if (typeof value === "object" && value !== null && !_.isDate(value)) {
+        if (typeof value === "object" && value !== null && !isDate(value)) {
           recurse(value, newPath)
         } else if (condition(value, key)) {
-          _.set(result, newPath, value)
+          set(result, newPath, value)
         }
       }
     }
@@ -72,17 +77,17 @@ const deepPick = (
 const createControl = <T>(
   formState: Ref<Object.Partial<object, "deep">>,
   defaultFormState: Ref<Object.Partial<object, "deep">>,
-  path: (string | number | symbol)[],
+  path: (string | number | symbol)[]
 ): InputControl<T> => {
   // Updating the default value should be discouraged, so it's exposed as a read-only computed
-  const defaultValue = computed(() => _.get(defaultFormState.value, path))
+  const defaultValue = computed(() => get(defaultFormState.value, path))
   const state = computed({
     get() {
-      return _.get(formState.value, path)
+      return get(formState.value, path)
     },
     set(value: T) {
-      _.set(formState.value, path, value)
-    },
+      set(formState.value, path, value)
+    }
   })
 
   /**
@@ -92,20 +97,20 @@ const createControl = <T>(
    */
   const dirty = computed(
     () =>
-      !_.isEqual(
+      !isEqual(
         deepPick(state.value, (v) => v !== undefined),
-        deepPick(defaultValue.value, (v) => v !== undefined),
-      ),
+        deepPick(defaultValue.value, (v) => v !== undefined)
+      )
   )
 
   const clear = () => {
-    _.set(formState.value, path, undefined)
+    set(formState.value, path, undefined)
   }
   const reset = () => {
     state.value = defaultValue.value
   }
   const updateDefaultValue = (newDefaultValue: T) => {
-    _.set(defaultFormState.value, path, newDefaultValue)
+    set(defaultFormState.value, path, newDefaultValue)
   }
 
   return {
@@ -114,7 +119,7 @@ const createControl = <T>(
     dirty,
     clear,
     reset,
-    updateDefaultValue,
+    updateDefaultValue
   }
 }
 
@@ -122,14 +127,14 @@ const getOrCreateControl = (
   formState: Ref<Object.Partial<object, "deep">>,
   defaultFormState: Ref<Object.Partial<object, "deep">>,
   controlsCache: Map<string, InputControl<unknown>>,
-  path: (string | number | symbol)[],
+  path: (string | number | symbol)[]
 ) => {
   const concatenatedPath: string = path.join(".")
 
   if (!controlsCache.has(concatenatedPath)) {
     controlsCache.set(
       concatenatedPath,
-      createControl(formState, defaultFormState, path),
+      createControl(formState, defaultFormState, path)
     )
   }
 
@@ -139,7 +144,7 @@ const getOrCreateControl = (
 const createControlTree = <T extends object>(
   formState: Ref<Object.Partial<T, "deep">>,
   defaultFormState: Ref<Object.Partial<T, "deep">>,
-  controlsCache: Map<string, InputControl<unknown>>,
+  controlsCache: Map<string, InputControl<unknown>>
 ) => {
   const buildProxyHandler = (path: (string | number | symbol)[] = []) => ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -148,14 +153,14 @@ const createControlTree = <T extends object>(
 
       if (handlerPath === Symbol.iterator) {
         return function* () {
-          const array = _.get(formState.value, path) ?? []
+          const array = get(formState.value, path) ?? []
           for (let i = 0; i < array.length; i++) {
             const iteratorPath = [...path, i]
             target[i] = buildProxyControl(
               formState,
               defaultFormState,
               controlsCache,
-              iteratorPath,
+              iteratorPath
             )
             yield target[i]
           }
@@ -167,18 +172,18 @@ const createControlTree = <T extends object>(
           formState,
           defaultFormState,
           controlsCache,
-          fullPath,
+          fullPath
         )
       }
       return target[handlerPath]
-    },
+    }
   })
 
   const buildProxyControl = (
     formState: Ref<Object.Partial<object, "deep">>,
     defaultFormState: Ref<Object.Partial<object, "deep">>,
     controlsCache: Map<string, InputControl<unknown>>,
-    path: (string | number | symbol)[],
+    path: (string | number | symbol)[]
   ) =>
     new Proxy(
       {
@@ -186,30 +191,30 @@ const createControlTree = <T extends object>(
           formState,
           defaultFormState,
           controlsCache,
-          path,
-        ),
+          path
+        )
       },
-      buildProxyHandler(path),
+      buildProxyHandler(path)
     )
 
   return new Proxy<FormNode<T>>({} as FormNode<T>, buildProxyHandler())
 }
 
 const useFormControl = <T extends object>(
-  defaultState: Object.Partial<T, "deep"> = {},
+  defaultState: Object.Partial<T, "deep"> = {}
 ): FormControl<T> => {
-  const defaultFormState = shallowRef(_.cloneDeep(defaultState))
-  const state = ref<Object.Partial<T, "deep">>(_.cloneDeep(defaultState))
+  const defaultFormState = shallowRef(cloneDeep(defaultState))
+  const state = ref<Object.Partial<T, "deep">>(cloneDeep(defaultState))
   const controlsCache = new Map<string, InputControl<unknown>>()
 
   const controlsTree = createControlTree<T>(
     state,
     defaultFormState,
-    controlsCache,
+    controlsCache
   )
 
   return {
-    controlsTree,
+    controlsTree
   }
 }
 
@@ -225,14 +230,14 @@ type State = {
 
 const testControl = useFormControl<State>({
   address: {
-    city: "Gotham",
-  },
+    city: "Gotham"
+  }
 })
 
 testControl.controlsTree.age.control.state.value = 21
 testControl.controlsTree.address.control.state.value = {
   street: "123 Main St",
-  city: "Metropolis",
+  city: "Metropolis"
 }
 testControl.controlsTree.name.control.state.value = "John Doe"
 
@@ -248,7 +253,7 @@ console.log(
   testControl.controlsTree.address.city.control.state.value,
   " - ",
   testControl.controlsTree.age.control.defaultValue.value,
-  testControl.controlsTree.age.control.state.value,
+  testControl.controlsTree.age.control.state.value
 )
 
 testControl.controlsTree.tags.control.state.value = ["a", "b", "c"]

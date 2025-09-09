@@ -1,4 +1,5 @@
 {
   "semi": false,
-  "arrowParens": "always"
+  "arrowParens": "always",
+  "trailingComma": "none"
 }

@@ -2,7 +2,7 @@
 export const moveItemInArray = <T>(
   originalIndex: number,
   targetIndex: number,
-  list: T[],
+  list: T[]
 ) => {
   const copy = [...list]
 

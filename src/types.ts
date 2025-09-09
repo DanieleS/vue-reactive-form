@@ -1,5 +1,5 @@
 import type { errorSymbol, validationMetaSymbol } from "./symbols.js"
-import type { ComputedRef, Ref } from "vue"
+import type { ComputedRef, Ref } from "@vue/reactivity"
 
 export type FormControlValidationMeta = {
   /**

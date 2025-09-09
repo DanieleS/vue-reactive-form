@@ -5,8 +5,8 @@ import isSymbol from "lodash/isSymbol"
 import keys from "lodash/keys"
 import set from "lodash/set"
 import type { O } from "ts-toolbelt"
-import type { Ref, UnwrapRef } from "vue"
-import { computed, ref, watch } from "vue"
+import type { Ref, UnwrapRef } from "@vue/reactivity"
+import { computed, ref, watch } from "@vue/reactivity"
 import type {
   Controls,
   FormControl,
@@ -16,7 +16,7 @@ import type {
   FormValidationError,
   FormValidationErrorsTree,
   FormControlValidationMeta,
-  InputValidationDescriptor,
+  InputValidationDescriptor
 } from "./types"
 import { errorSymbol, validationMetaSymbol } from "./symbols"
 import { moveItemInArray } from "./utils/array"
@@ -34,7 +34,7 @@ provides utilities to validate and check the state of the form.
 
 export const hasErrorsDeep = (
   errors?: FormValidationErrorsTree<any>,
-  startPath: string[] = [],
+  startPath: string[] = []
 ): boolean => {
   if (!errors) return false
 
@@ -42,14 +42,14 @@ export const hasErrorsDeep = (
 
   if (startErrors?.[errorSymbol]?.length) return true
   const hasDeepErrors = Object.keys(startErrors ?? {}).some((key) =>
-    hasErrorsDeep(errors, [...startPath, key]),
+    hasErrorsDeep(errors, [...startPath, key])
   )
 
   return hasDeepErrors
 }
 
 const defaultMeta: FormControlValidationMeta = {
-  isRequired: false,
+  isRequired: false
 }
 
 /**
@@ -87,7 +87,7 @@ const formGet = (target: any, p: (string | symbol | number)[]) =>
 const formSet = (
   target: Ref<any>,
   p: (string | symbol | number)[],
-  newVal: any,
+  newVal: any
 ) => {
   if (p.length) {
     set(target, ["value", ...p], newVal)
@@ -119,7 +119,7 @@ const buildControls = <T = any>(
   initialValueRef: Ref<any>,
   path: string[],
   refCache: Map<string, any>,
-  validationDescriptor?: InputValidationDescriptor<T>,
+  validationDescriptor?: InputValidationDescriptor<T>
 ): any => {
   const getChildrenInternal = (_target: unknown, p: string) => {
     // Ignore some properties to avoid dev tools hanging
@@ -137,7 +137,7 @@ const buildControls = <T = any>(
     const childState = computed(() => formGet(state.value, newPath))
 
     const isDirty = computed(
-      () => !isEqual(childState.value, formGet(initialValueRef.value, newPath)),
+      () => !isEqual(childState.value, formGet(initialValueRef.value, newPath))
     )
 
     const hasErrors = computed(() => hasErrorsDeep(errors.value, newPath))
@@ -156,21 +156,21 @@ const buildControls = <T = any>(
         initialValueRef,
         newPath,
         refCache,
-        validationDescriptor,
+        validationDescriptor
       ),
       initialValue: computed(() => formGet(initialValueRef.value, newPath)),
       errorMessages: computed(() =>
         (get(errors.value ?? {}, [...newPath, errorSymbol]) ?? []).map(
-          (e: FormValidationError) => e.message,
-        ),
+          (e: FormValidationError) => e.message
+        )
       ),
       hasErrors,
       isValid: computed(() => !hasErrors.value),
       meta: get(
         validationDescriptor,
         [...toInputValidationDescriptorPath(newPath), validationMetaSymbol],
-        defaultMeta,
-      ),
+        defaultMeta
+      )
     }
 
     // Cache the control to avoid creating it multiple times
@@ -221,12 +221,12 @@ const buildControls = <T = any>(
         return {
           configurable: true,
           enumerable: true,
-          writable: false,
+          writable: false
         }
       }
 
       return undefined
-    },
+    }
   })
 
   const objectControl = childrenProxy
@@ -272,7 +272,7 @@ const buildControls = <T = any>(
     },
     clear: () => {
       set(state, ["value", ...path], [])
-    },
+    }
   }
 
   const primitiveSetState = (value: UnwrapRef<T>) => {
@@ -284,13 +284,13 @@ const buildControls = <T = any>(
     reset: () => primitiveSetState(formGet(initialValueRef.value, path)),
     clear: () => primitiveSetState(undefined as any),
     updateInitialState: (newInitialState: any) =>
-      formSet(initialValueRef, path, newInitialState),
+      formSet(initialValueRef, path, newInitialState)
   }
 
   return {
     asPrimitive: primitiveControl,
     asArray: arrayControl,
-    asObject: objectControl,
+    asObject: objectControl
   }
 }
 
@@ -340,7 +340,7 @@ const buildControls = <T = any>(
  */
 export const useFormControl = <T = any>(
   initialValue?: O.Partial<{ value: T }, "deep">["value"],
-  { validator, validationDescriptor }: FormValidationOptions<T> = {},
+  { validator, validationDescriptor }: FormValidationOptions<T> = {}
 ): FormControlRoot<T> => {
   const initialValueRef = ref<T>(initialValue as any)
   const state = ref<T>(cloneDeep(initialValue) as any)
@@ -356,8 +356,8 @@ export const useFormControl = <T = any>(
     () =>
       !isEqual(
         deepPick(state.value, (v) => v !== undefined),
-        deepPick(initialValueRef.value, (v) => v !== undefined),
-      ),
+        deepPick(initialValueRef.value, (v) => v !== undefined)
+      )
   )
   const isValid = computed(() => !hasErrors.value)
 
@@ -381,7 +381,7 @@ export const useFormControl = <T = any>(
     isValid,
     errors: computed(() => errors.value),
     errorMessages: computed(
-      () => errors.value?.[errorSymbol]?.map((e) => e.message) ?? [],
+      () => errors.value?.[errorSymbol]?.map((e) => e.message) ?? []
     ),
     resetErrors,
     validate,
@@ -399,9 +399,9 @@ export const useFormControl = <T = any>(
       initialValueRef,
       [],
       refCache,
-      validationDescriptor,
+      validationDescriptor
     ) as unknown as Controls<UnwrapRef<T>>),
-    meta: validationDescriptor?.[validationMetaSymbol] ?? defaultMeta,
+    meta: validationDescriptor?.[validationMetaSymbol] ?? defaultMeta
   } as unknown as FormControlRoot<T>
 }
 
@@ -414,11 +414,11 @@ export const useFormControl = <T = any>(
  * @returns {FormControl<T>} - The form control object.
  */
 export const useModelControl = <T>(
-  modelRef: Ref<T | undefined>,
+  modelRef: Ref<T | undefined>
 ): FormControl<T> => {
   const control = useFormControl<T>(modelRef.value)
   watch(modelRef, (value) =>
-    control.asPrimitive.setState(value as NonNullable<T> | undefined),
+    control.asPrimitive.setState(value as NonNullable<T> | undefined)
   )
   watch(control.state, (value) => (modelRef.value = value), { deep: true })
 
