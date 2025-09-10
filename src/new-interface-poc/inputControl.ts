@@ -93,6 +93,7 @@ export const getInputControl = (
   controlsCache: Map<string, InputControl<unknown>>,
   path: (string | number | symbol)[]
 ) => {
+  console.log("aaaaaaaaaaaaaa INPUT CONTROL", path)
   const concatenatedPath: string = path.join(".")
 
   if (!controlsCache.has(concatenatedPath)) {

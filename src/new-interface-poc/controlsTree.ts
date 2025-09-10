@@ -29,15 +29,21 @@ export const createControlsTree = <TState>(
         }
       }
 
-      if (!(handlerPath in target)) {
-        target[handlerPath] = buildProxyControl(
-          formState,
-          defaultFormState,
-          controlsCache,
-          fullPath
+      console.log("aaaaaaaaaaaaaa HANDLER", path, fullPath, handlerPath, target)
+      if (!Reflect.get(target, handlerPath)) {
+        Reflect.set(
+          target,
+          handlerPath,
+          buildProxyControl(
+            formState,
+            defaultFormState,
+            controlsCache,
+            fullPath
+          )
         )
       }
-      return target[handlerPath]
+
+      return Reflect.get(target, handlerPath)
     }
   })
 
