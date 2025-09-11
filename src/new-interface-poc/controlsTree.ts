@@ -29,7 +29,6 @@ export const createControlsTree = <TState>(
         }
       }
 
-      console.log("aaaaaaaaaaaaaa HANDLER", path, fullPath, handlerPath, target)
       if (!Reflect.get(target, handlerPath)) {
         Reflect.set(
           target,

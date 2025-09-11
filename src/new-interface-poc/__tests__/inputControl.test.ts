@@ -74,6 +74,22 @@ describe("createInputControl", () => {
       expect(control.state.value).toBe("something")
       expect(control.dirty.value).toBe(true)
     })
+
+    it("should handle setting default state to undefined", () => {
+      const formState = ref("bar")
+      const defaultFormState = ref("bar")
+      const control = createInputControl(formState, defaultFormState)
+
+      expect(control.dirty.value).toBe(false)
+
+      control.updateDefaultValue(undefined)
+      expect(control.defaultValue.value).toBe(undefined)
+      expect(control.dirty.value).toBe(true)
+
+      control.reset()
+      expect(control.state.value).toBe(undefined)
+      expect(control.dirty.value).toBe(false)
+    })
   })
 
   describe("When state is an object", () => {
@@ -204,13 +220,29 @@ describe("createInputControl", () => {
       expect(control.state.value).toEqual(["reading", "swimming"])
       expect(control.dirty.value).toBe(false)
     })
+
+    it("should handle setting default state to undefined", () => {
+      const formState = ref({ name: "John", age: 30 })
+      const defaultFormState = ref({ name: "John", age: 30 })
+      const control = createInputControl(formState, defaultFormState)
+
+      expect(control.dirty.value).toBe(false)
+
+      control.updateDefaultValue(undefined)
+      expect(control.defaultValue.value).toBe(undefined)
+      expect(control.dirty.value).toBe(true)
+
+      control.reset()
+      expect(control.state.value).toBe(undefined)
+      expect(control.dirty.value).toBe(false)
+    })
   })
 
   describe("When state is an array", () => {
     it("should expose the correct initial state and defaultValue", () => {
       const formState = ref([1, 2, 3])
       const defaultFormState = ref([1, 2, 3])
-      const control = createInputControl(formState, defaultFormState, [])
+      const control = createInputControl(formState, defaultFormState)
 
       expect(control.state.value).toEqual([1, 2, 3])
       expect(control.defaultValue.value).toEqual([1, 2, 3])
@@ -220,7 +252,7 @@ describe("createInputControl", () => {
     it("should handle state changes and dirty detection", () => {
       const formState = ref([1, 2, 3])
       const defaultFormState = ref([1, 2, 3])
-      const control = createInputControl(formState, defaultFormState, [])
+      const control = createInputControl(formState, defaultFormState)
 
       control.state.value = [1, 2, 4]
       expect(control.state.value).toEqual([1, 2, 4])
@@ -230,7 +262,7 @@ describe("createInputControl", () => {
     it("should reset to default value and clear dirty state", () => {
       const formState = ref([1, 2, 3])
       const defaultFormState = ref([1, 2, 3])
-      const control = createInputControl(formState, defaultFormState, [])
+      const control = createInputControl(formState, defaultFormState)
 
       control.state.value = [1, 2, 4]
       expect(control.dirty.value).toBe(true)
@@ -243,7 +275,7 @@ describe("createInputControl", () => {
     it("should clear the value and set dirty to true", () => {
       const formState = ref([1, 2, 3])
       const defaultFormState = ref([1, 2, 3])
-      const control = createInputControl(formState, defaultFormState, [])
+      const control = createInputControl(formState, defaultFormState)
 
       control.clear()
       expect(control.state.value).toBe(undefined)
@@ -253,7 +285,7 @@ describe("createInputControl", () => {
     it("should update the default value", () => {
       const formState = ref([1, 2, 3])
       const defaultFormState = ref([1, 2, 3])
-      const control = createInputControl(formState, defaultFormState, [])
+      const control = createInputControl(formState, defaultFormState)
 
       const newDefault = [4, 5, 6]
       control.updateDefaultValue(newDefault)
@@ -295,7 +327,7 @@ describe("createInputControl", () => {
         [1, 2],
         [3, 4]
       ])
-      const control = createInputControl(formState, defaultFormState, [])
+      const control = createInputControl(formState, defaultFormState)
 
       expect(control.state.value).toEqual([
         [1, 2],
@@ -343,7 +375,7 @@ describe("createInputControl", () => {
     it("should handle array of objects", () => {
       const formState = ref([{ a: 1 }, { a: 2 }])
       const defaultFormState = ref([{ a: 1 }, { a: 2 }])
-      const control = createInputControl(formState, defaultFormState, [])
+      const control = createInputControl(formState, defaultFormState)
 
       expect(control.state.value).toEqual([{ a: 1 }, { a: 2 }])
       expect(control.dirty.value).toBe(false)
@@ -370,6 +402,22 @@ describe("createInputControl", () => {
 
       control.reset()
       expect(control.state.value).toBe(2)
+      expect(control.dirty.value).toBe(false)
+    })
+
+    it("should handle setting default state to undefined", () => {
+      const formState = ref([1, 2, 3])
+      const defaultFormState = ref([1, 2, 3])
+      const control = createInputControl(formState, defaultFormState)
+
+      expect(control.dirty.value).toBe(false)
+
+      control.updateDefaultValue(undefined)
+      expect(control.defaultValue.value).toBe(undefined)
+      expect(control.dirty.value).toBe(true)
+
+      control.reset()
+      expect(control.state.value).toBe(undefined)
       expect(control.dirty.value).toBe(false)
     })
   })
