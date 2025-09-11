@@ -75,7 +75,7 @@ const createControlsTree = <TState>(
 type FormState<T> = T extends object ? Object.Partial<T, "deep"> : T
 
 export const useFormControl = <TState>(
-  defaultState: FormState<TState>
+  defaultState?: FormState<TState>
 ): FormControl<TState> => {
   type WrappedState = { inner: TState }
 
