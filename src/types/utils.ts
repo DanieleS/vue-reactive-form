@@ -1,3 +1,5 @@
+import type { Object } from "ts-toolbelt"
+
 // Lightweight set of non-plain-types "builtin" object types to exclude
 export interface NotPlainTypes {
   // Library’s defaults
@@ -19,3 +21,7 @@ export type IsPlainObject<T> = [Exclude<T, PlainMembers<T>>] extends [never]
   : false
 
 export type IsArray<T> = T extends unknown[] ? true : false
+
+export type PartialOrPrimitive<T> = T extends object
+  ? Object.Partial<T, "deep">
+  : T

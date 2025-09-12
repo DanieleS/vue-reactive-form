@@ -3,6 +3,7 @@ import type { Object } from "ts-toolbelt"
 import { cloneDeep, get } from "lodash-es"
 import type { FormControl, FormNode, InputControl } from "./types"
 import { getInputControl } from "./inputControl"
+import type { PartialOrPrimitive } from "./types/utils"
 
 const createControlsTree = <TState>(
   formState: Ref<TState>,
@@ -72,10 +73,8 @@ const createControlsTree = <TState>(
   )
 }
 
-type FormState<T> = T extends object ? Object.Partial<T, "deep"> : T
-
 export const useFormControl = <TState>(
-  defaultState?: FormState<TState>
+  defaultState?: PartialOrPrimitive<TState>
 ): FormControl<TState> => {
   type WrappedState = { inner: TState }
 
