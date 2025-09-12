@@ -2,6 +2,7 @@ import { computed, type Ref } from "@vue/reactivity"
 import type { InputControl } from "./types"
 import { get, isEqual, isObject, set } from "lodash-es"
 import { deepPick } from "./utils"
+import { createArrayInputControl } from "./arrayInputControl"
 
 /**
  * This function gets the value of a property in a reactive object, given the path.
@@ -98,7 +99,11 @@ export const getInputControl = (
   if (!controlsCache.has(concatenatedPath)) {
     controlsCache.set(
       concatenatedPath,
-      createInputControl(formState, defaultFormState, path)
+      createArrayInputControl(
+        formState,
+        defaultFormState,
+        path
+      ) as InputControl<unknown>
     )
   }
 

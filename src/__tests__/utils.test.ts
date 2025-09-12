@@ -56,4 +56,16 @@ describe("deepPick", () => {
     const result = deepPick(arr, (v) => v === 2)
     expect(result).toEqual([undefined, { a: 2 }])
   })
+
+  it("should still keep empty objects in the result", () => {
+    const obj = { a: {}, b: { c: 1 } }
+    const result = deepPick(obj, (v) => v === 1)
+    expect(result).toEqual({ a: {}, b: { c: 1 } })
+  })
+
+  it("should still keep empty arrays in the result", () => {
+    const obj = { a: [], b: [1, 2, 3] }
+    const result = deepPick(obj, (v) => v === 2)
+    expect(result).toEqual({ a: [], b: [undefined, 2] })
+  })
 })

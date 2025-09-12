@@ -1,4 +1,4 @@
-import { isDate, set } from "lodash-es"
+import { isDate, isEqual, set } from "lodash-es"
 
 export const deepPick = (
   obj: any,
@@ -17,7 +17,12 @@ export const deepPick = (
         const newPath = path.concat(key)
 
         if (typeof value === "object" && value !== null && !isDate(value)) {
-          recurse(value, newPath)
+          if (isEqual(value, {}) || isEqual(value, [])) {
+            // If the object is empty, we still want to include it
+            set(result, newPath, value)
+          } else {
+            recurse(value, newPath)
+          }
         } else if (condition(value, key)) {
           set(result, newPath, value)
         }
