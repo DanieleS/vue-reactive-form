@@ -223,4 +223,135 @@ describe("useFormControl", () => {
       expect(form.controlsTree.scores[1]?.control.state.value).toBe(92)
     })
   })
+
+  describe("Array control operations", () => {
+    it("should add items to an array using the add method", () => {
+      const form = useFormControl<{ tags: string[] }>({
+        tags: ["javascript", "vue"]
+      })
+
+      form.controlsTree.tags.control.add("typescript")
+
+      expect(form.controlsTree.tags.control.state.value).toEqual([
+        "javascript",
+        "vue",
+        "typescript"
+      ])
+      expect(form.controlsTree.tags.control.dirty.value).toBe(true)
+    })
+
+    it("should remove items from an array using the remove method", () => {
+      const form = useFormControl({
+        tags: ["javascript", "vue", "typescript"]
+      })
+
+      form.controlsTree.tags.control.remove(1)
+
+      expect(form.controlsTree.tags.control.state.value).toEqual([
+        "javascript",
+        "typescript"
+      ])
+      expect(form.controlsTree.tags.control.dirty.value).toBe(true)
+    })
+
+    it("should move items within an array using the moveItem method", () => {
+      const form = useFormControl({
+        tags: ["javascript", "vue", "typescript", "react"]
+      })
+
+      form.controlsTree.tags.control.moveItem(0, 2)
+
+      expect(form.controlsTree.tags.control.state.value).toEqual([
+        "vue",
+        "typescript",
+        "javascript",
+        "react"
+      ])
+      expect(form.controlsTree.tags.control.dirty.value).toBe(true)
+    })
+
+    it("should move items backward within an array", () => {
+      const form = useFormControl({
+        tags: ["javascript", "vue", "typescript", "react"]
+      })
+
+      form.controlsTree.tags.control.moveItem(3, 1)
+
+      expect(form.controlsTree.tags.control.state.value).toEqual([
+        "javascript",
+        "react",
+        "vue",
+        "typescript"
+      ])
+      expect(form.controlsTree.tags.control.dirty.value).toBe(true)
+    })
+
+    it("should work with nested array operations", () => {
+      const form = useFormControl({
+        users: [
+          { name: "John", skills: ["javascript", "vue"] },
+          { name: "Jane", skills: ["python"] }
+        ]
+      })
+
+      // Add a skill to the first user
+      form.controlsTree.users[0]!.skills.control.add("typescript")
+
+      expect(form.controlsTree.users[0]?.skills.control.state.value).toEqual([
+        "javascript",
+        "vue",
+        "typescript"
+      ])
+
+      // Remove a skill from the first user
+      form.controlsTree.users[0]!.skills.control.remove(0)
+
+      expect(form.controlsTree.users[0]?.skills.control.state.value).toEqual([
+        "vue",
+        "typescript"
+      ])
+
+      // Move a skill within the first user's skills
+      form.controlsTree.users[0]!.skills.control.moveItem(0, 1)
+
+      expect(form.controlsTree.users[0]?.skills.control.state.value).toEqual([
+        "typescript",
+        "vue"
+      ])
+
+      // Add a new user
+      form.controlsTree.users.control.add({ name: "Bob", skills: ["react"] })
+
+      expect(form.controlsTree.users.control.state.value).toEqual([
+        { name: "John", skills: ["typescript", "vue"] },
+        { name: "Jane", skills: ["python"] },
+        { name: "Bob", skills: ["react"] }
+      ])
+    })
+
+    it("should handle root-level array control operations", () => {
+      const form = useFormControl<string[]>(["a", "b", "c"])
+
+      // Add an item
+      form.controlsTree.control.add("d")
+
+      expect(form.controlsTree.control.state.value).toEqual([
+        "a",
+        "b",
+        "c",
+        "d"
+      ])
+
+      // Remove an item
+      form.controlsTree.control.remove(1)
+
+      expect(form.controlsTree.control.state.value).toEqual(["a", "c", "d"])
+
+      // Move an item
+      form.controlsTree.control.moveItem(0, 2)
+
+      expect(form.controlsTree.control.state.value).toEqual(["c", "d", "a"])
+      expect(form.controlsTree.control.dirty.value).toBe(true)
+    })
+  })
 })
