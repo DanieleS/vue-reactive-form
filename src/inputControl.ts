@@ -87,25 +87,3 @@ export const createInputControl = <TState>(
     updateDefaultValue
   }
 }
-
-export const getInputControl = (
-  formState: Ref<unknown>,
-  defaultFormState: Ref<unknown>,
-  controlsCache: Map<string, InputControl<unknown>>,
-  path: (string | number | symbol)[]
-) => {
-  const concatenatedPath: string = path.join(".")
-
-  if (!controlsCache.has(concatenatedPath)) {
-    controlsCache.set(
-      concatenatedPath,
-      createArrayInputControl(
-        formState,
-        defaultFormState,
-        path
-      ) as InputControl<unknown>
-    )
-  }
-
-  return controlsCache.get(concatenatedPath)
-}
