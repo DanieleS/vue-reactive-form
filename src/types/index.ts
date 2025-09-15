@@ -16,10 +16,6 @@ export type ArrayInputControl<T extends Array<unknown>> = InputControl<T> & {
   moveItem: (fromIndex: number, toIndex: number) => void
 }
 
-export type FormControl<T> = {
-  controlsTree: FormNode<T>
-}
-
 export type PrimitiveFormNode<T> = {
   control: InputControl<T>
 }
@@ -39,3 +35,7 @@ export type FormNode<T> = IsPlainObject<T> extends true
   : IsArray<T> extends true
   ? ArrayFormNode<T & unknown[]>
   : PrimitiveFormNode<T>
+
+export type FormRoot<T> = {
+  controlsTree: FormNode<T>
+}

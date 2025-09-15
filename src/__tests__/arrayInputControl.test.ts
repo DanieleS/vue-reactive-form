@@ -21,7 +21,7 @@ describe("createArrayInputControl", () => {
 
       control.add()
       expect(control.state.value).toEqual([1, 2, 3, undefined])
-      expect(control.dirty.value).toBe(false)
+      expect(control.dirty.value).toBe(true)
     })
 
     it("should add objects to an array", () => {

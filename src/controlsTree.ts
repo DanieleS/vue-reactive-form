@@ -3,7 +3,7 @@ import type { FormNode, InputControl } from "./types"
 import { createArrayInputControl } from "./arrayInputControl"
 import { get } from "lodash-es"
 
-export const getInputControl = (
+const getInputControl = (
   formState: Ref<unknown>,
   defaultFormState: Ref<unknown>,
   controlsCache: Map<string, InputControl<unknown>>,

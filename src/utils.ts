@@ -16,7 +16,17 @@ export const deepPick = (
         const value = current[key]
         const newPath = path.concat(key)
 
-        if (typeof value === "object" && value !== null && !isDate(value)) {
+        if (Array.isArray(current)) {
+          // Special handling for arrays: preserve indexes even if value is undefined
+          if (condition(value, key) || value === undefined) {
+            set(result, newPath, value)
+          }
+          recurse(value, newPath)
+        } else if (
+          typeof value === "object" &&
+          value !== null &&
+          !isDate(value)
+        ) {
           if (isEqual(value, {}) || isEqual(value, [])) {
             // If the object is empty, we still want to include it
             set(result, newPath, value)
