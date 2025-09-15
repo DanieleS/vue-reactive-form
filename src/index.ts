@@ -1,10 +1,10 @@
 import { ref, type Ref } from "@vue/reactivity"
-import { cloneDeep, get } from "lodash-es"
-import type { FormRoot, FormNode, InputControl } from "./types"
+import { cloneDeep } from "lodash-es"
+import type { FormRoot, InputControl } from "./types"
 import type { PartialOrPrimitive } from "./types/utils"
 import { createControlsTree } from "./controlsTree"
 
-export const useFormControl = <TState>(
+export const useFormControl = <TState, TValidatedState = TState>(
   defaultState?: PartialOrPrimitive<TState>
 ): FormRoot<TState> => {
   type WrappedState = { inner: TState }
