@@ -1,5 +1,5 @@
 import type { ComputedRef, Ref } from "@vue/reactivity"
-import type { IsArray, IsPlainObject } from "./utils"
+import type { IsArray, IsPlainObject, PartialOrPrimitive } from "./utils"
 
 export type InputControl<T> = {
   state: Ref<T | undefined>
@@ -8,25 +8,26 @@ export type InputControl<T> = {
   clear: () => void
   reset: () => void
   updateDefaultValue: (newDefaultValue: T) => void
-  // .. all other input metadata
 }
 
-export type FormControl<T> = {
-  controlsTree: FormNode<T>
-  // .. all other root form api (validate, submit, etc..)
+export type ArrayInputControl<T extends Array<unknown>> = InputControl<T> & {
+  add: (defaultValue?: PartialOrPrimitive<T[number]>) => void
+  remove: (index: number) => void
+  moveItem: (fromIndex: number, toIndex: number) => void
 }
 
-type PrimitiveFormNode<T> = {
-  control: InputControl<T> // maybe could be turned to control() to differentiate from the other properties..?
+export type PrimitiveFormNode<T> = {
+  control: InputControl<T>
 }
 
-type ObjectFormNode<T extends object> = PrimitiveFormNode<T> & {
+export type ObjectFormNode<T extends object> = PrimitiveFormNode<T> & {
   [Key in keyof T]: FormNode<T[Key]>
 }
 
-type ArrayFormNode<T extends unknown[]> = PrimitiveFormNode<T> & {
+export type ArrayFormNode<T extends unknown[]> = {
   [index: number]: FormNode<T[number]>
   [Symbol.iterator](): IterableIterator<FormNode<T[number]>>
+  control: ArrayInputControl<T>
 }
 
 export type FormNode<T> = IsPlainObject<T> extends true
@@ -34,3 +35,7 @@ export type FormNode<T> = IsPlainObject<T> extends true
   : IsArray<T> extends true
   ? ArrayFormNode<T & unknown[]>
   : PrimitiveFormNode<T>
+
+export type FormRoot<T> = {
+  controlsTree: FormNode<T>
+}
