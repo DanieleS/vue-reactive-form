@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest"
 import { useForm } from "../index"
 import * as yup from "yup"
 
-describe("useFormControl", () => {
+describe("useForm", () => {
   describe("Controls tree navigation", () => {
     it("should handle primitive root state", () => {
       const form = useForm("Hello World")
