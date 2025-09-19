@@ -10,18 +10,16 @@ export const useForm = <TState, TValidatedState = TState>(
   defaultState?: PartialOrPrimitive<TState>,
   options: UseFormControlOptions<TState, TValidatedState> = {}
 ): FormRoot<TState, TValidatedState> => {
-  type WrappedState = { inner: TState }
-
   const { validationSchema } = options
 
-  const defaultFormState = ref({
-    inner: cloneDeep(defaultState)
-  }) as Ref<WrappedState>
-  const state = ref({ inner: cloneDeep(defaultState) }) as Ref<WrappedState>
+  const defaultFormState = ref(cloneDeep(defaultState)) as Ref<
+    TState | undefined
+  >
+  const state = ref(cloneDeep(defaultState)) as Ref<TState>
   const controlsCache = new Map<string, InputControl<unknown>>()
   const errors = ref<FormErrorsState>({})
 
-  const controlsTree = createControlsTree<WrappedState>(
+  const controlsTree = createControlsTree<TState>(
     state,
     defaultFormState,
     errors,
@@ -38,11 +36,12 @@ export const useForm = <TState, TValidatedState = TState>(
 
     errors.value = {}
 
-    const result = await standardValidate(validationSchema, state.value.inner)
+    const result = await standardValidate(validationSchema, state.value)
 
     if (!result.success) {
-      errors.value = groupBy(result.issues, (issue) =>
-        !issue.path.length ? "inner" : `inner.${issue.path.join(".")}`
+      errors.value = groupBy(
+        result.issues,
+        (issue) => `${issue.path.join(".")}`
       )
     } else {
       return result.output
@@ -50,7 +49,7 @@ export const useForm = <TState, TValidatedState = TState>(
   }
 
   return {
-    controlsTree: controlsTree.inner,
+    controlsTree,
     validate
   }
 }
