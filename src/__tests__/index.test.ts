@@ -1,30 +1,30 @@
 import { describe, it, expect } from "vitest"
-import { useFormControl } from "../index"
+import { useForm } from "../index"
 import * as yup from "yup"
 
 describe("useFormControl", () => {
   describe("Controls tree navigation", () => {
     it("should handle primitive root state", () => {
-      const form = useFormControl("Hello World")
+      const form = useForm("Hello World")
 
       expect(form.controlsTree.control.state.value).toBe("Hello World")
     })
 
     it("should handle array root state", () => {
-      const form = useFormControl(["Hello World"])
+      const form = useForm(["Hello World"])
 
       expect(form.controlsTree.control.state.value).toEqual(["Hello World"])
     })
 
     it("should navigate to primitive properties", () => {
-      const form = useFormControl({ name: "John", age: 30 })
+      const form = useForm({ name: "John", age: 30 })
 
       expect(form.controlsTree.name.control.state.value).toBe("John")
       expect(form.controlsTree.age.control.state.value).toBe(30)
     })
 
     it("should navigate to nested object properties", () => {
-      const form = useFormControl({
+      const form = useForm({
         user: {
           profile: {
             name: "John",
@@ -42,7 +42,7 @@ describe("useFormControl", () => {
     })
 
     it("should navigate to array properties", () => {
-      const form = useFormControl({
+      const form = useForm({
         tags: ["javascript", "vue", "typescript"]
       })
 
@@ -54,7 +54,7 @@ describe("useFormControl", () => {
     })
 
     it("should navigate to array elements", () => {
-      const form = useFormControl({
+      const form = useForm({
         users: [
           { name: "John", age: 30 },
           { name: "Jane", age: 25 }
@@ -68,7 +68,7 @@ describe("useFormControl", () => {
     })
 
     it("should iterate over array elements", () => {
-      const form = useFormControl({
+      const form = useForm({
         items: ["a", "b", "c"]
       })
 
@@ -81,7 +81,7 @@ describe("useFormControl", () => {
     })
 
     it("should handle deeply nested structures", () => {
-      const form = useFormControl({
+      const form = useForm({
         company: {
           departments: [
             {
@@ -113,7 +113,7 @@ describe("useFormControl", () => {
     })
 
     it("should maintain the same control reference for the same path", () => {
-      const form = useFormControl({ name: "John" })
+      const form = useForm({ name: "John" })
 
       const control1 = form.controlsTree.name.control
       const control2 = form.controlsTree.name.control
@@ -122,7 +122,7 @@ describe("useFormControl", () => {
     })
 
     it("should handle empty objects and arrays", () => {
-      const form = useFormControl({
+      const form = useForm({
         emptyObject: {},
         emptyArray: []
       })
@@ -132,14 +132,14 @@ describe("useFormControl", () => {
     })
 
     it("should handle undefined properties", () => {
-      const form = useFormControl<{ name: string; age: number }>({})
+      const form = useForm<{ name: string; age: number }>({})
 
       expect(form.controlsTree.name?.control.state.value).toBe(undefined)
       expect(form.controlsTree.age?.control.state.value).toBe(undefined)
     })
 
     it("should update state through controls tree navigation", () => {
-      const form = useFormControl<{ user: { name: string } }>({
+      const form = useForm<{ user: { name: string } }>({
         user: { name: "John" }
       })
 
@@ -150,7 +150,7 @@ describe("useFormControl", () => {
     })
 
     it("should update state in root primitive through controls tree navigation", () => {
-      const form = useFormControl("Hello")
+      const form = useForm("Hello")
 
       form.controlsTree.control.state.value = "World"
 
@@ -159,7 +159,7 @@ describe("useFormControl", () => {
     })
 
     it("should update state in root array through controls tree navigation", () => {
-      const form = useFormControl<string[]>(["a", "b", "c"])
+      const form = useForm<string[]>(["a", "b", "c"])
 
       form.controlsTree.control.state.value = ["x", "y", "z"]
 
@@ -168,7 +168,7 @@ describe("useFormControl", () => {
     })
 
     it("should update state in object through controls tree navigation", () => {
-      const form = useFormControl<{ user: { name: string } }>({
+      const form = useForm<{ user: { name: string } }>({
         user: { name: "John" }
       })
 
@@ -184,7 +184,7 @@ describe("useFormControl", () => {
     })
 
     it("should update state in arrays through controls tree navigation", () => {
-      const form = useFormControl<{ user: { skills: string[] } }>({
+      const form = useForm<{ user: { skills: string[] } }>({
         user: { skills: ["js", "vue"] }
       })
 
@@ -197,7 +197,7 @@ describe("useFormControl", () => {
     })
 
     it("should handle mixed data types in complex structures", () => {
-      const form = useFormControl({
+      const form = useForm({
         id: 1,
         active: true,
         user: {
@@ -227,7 +227,7 @@ describe("useFormControl", () => {
 
   describe("Validation", () => {
     it("should return undefined when no validation schema is provided", async () => {
-      const form = useFormControl("hello")
+      const form = useForm("hello")
 
       const result = await form.validate()
 
@@ -236,7 +236,7 @@ describe("useFormControl", () => {
 
     it("should validate successfully with a simple schema", async () => {
       const schema = yup.string().required()
-      const form = useFormControl("hello", { validationSchema: schema })
+      const form = useForm("hello", { validationSchema: schema })
 
       const result = await form.validate()
 
@@ -245,7 +245,7 @@ describe("useFormControl", () => {
 
     it("should return undefined when validation fails", async () => {
       const schema = yup.string().required()
-      const form = useFormControl("", { validationSchema: schema })
+      const form = useForm("", { validationSchema: schema })
 
       const result = await form.validate()
 
@@ -254,7 +254,7 @@ describe("useFormControl", () => {
 
     it("should test control validity state after validation", async () => {
       const schema = yup.string().required("Name is required")
-      const form = useFormControl("", { validationSchema: schema })
+      const form = useForm("", { validationSchema: schema })
 
       // Check initial state
       expect(form.controlsTree.control.isValid.value).toBe(true)
@@ -279,10 +279,7 @@ describe("useFormControl", () => {
           .required("Age is required")
           .min(0, "Age must be positive")
       })
-      const form = useFormControl(
-        { name: "", age: -5 },
-        { validationSchema: schema }
-      )
+      const form = useForm({ name: "", age: -5 }, { validationSchema: schema })
 
       const result = await form.validate()
       expect(result).toBe(undefined)
@@ -302,7 +299,7 @@ describe("useFormControl", () => {
 
     it("should clear errors when validation succeeds", async () => {
       const schema = yup.string().required("Name is required")
-      const form = useFormControl("", { validationSchema: schema })
+      const form = useForm("", { validationSchema: schema })
 
       // First validation should fail
       let result = await form.validate()
@@ -323,7 +320,7 @@ describe("useFormControl", () => {
         .array()
         .of(yup.string().required("Item is required"))
         .min(1, "At least one item required")
-      const form = useFormControl([], { validationSchema: schema })
+      const form = useForm([], { validationSchema: schema })
 
       const result = await form.validate()
       expect(result).toBe(undefined)
@@ -343,7 +340,7 @@ describe("useFormControl", () => {
           .of(yup.string().required("Tag cannot be empty"))
           .min(1, "At least one tag required")
       })
-      const form = useFormControl(
+      const form = useForm(
         { name: "John", tags: [] },
         { validationSchema: schema }
       )

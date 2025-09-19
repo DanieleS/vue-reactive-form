@@ -6,7 +6,7 @@ import { createControlsTree } from "./controlsTree"
 import { standardValidate } from "./validation"
 import type { InputControl } from "./types/controls"
 
-export const useFormControl = <TState, TValidatedState = TState>(
+export const useForm = <TState, TValidatedState = TState>(
   defaultState?: PartialOrPrimitive<TState>,
   options: UseFormControlOptions<TState, TValidatedState> = {}
 ): FormRoot<TState, TValidatedState> => {
