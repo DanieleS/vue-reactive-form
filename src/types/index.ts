@@ -1,41 +1,16 @@
-import type { ComputedRef, Ref } from "@vue/reactivity"
-import type { IsArray, IsPlainObject, PartialOrPrimitive } from "./utils"
+import type { StandardSchemaV1 } from "@standard-schema/spec"
+import type { FormNode } from "./formNodes"
+import type { InputControl } from "./controls"
+import type { ValidationIssue } from "../validation"
 
-export type InputControl<T> = {
-  state: Ref<T | undefined>
-  defaultValue: ComputedRef<T | undefined>
-  dirty: ComputedRef<boolean>
-  clear: () => void
-  reset: () => void
-  updateDefaultValue: (newDefaultValue: T) => void
+export type ControlsCache = Map<string, InputControl<unknown>>
+export type FormErrorsState = Record<string, ValidationIssue[]>
+
+export type UseFormControlOptions<TState, TValidatedState = TState> = {
+  validationSchema?: StandardSchemaV1<TState, TValidatedState>
 }
 
-export type ArrayInputControl<T extends Array<unknown>> = InputControl<T> & {
-  add: (defaultValue?: PartialOrPrimitive<T[number]>) => void
-  remove: (index: number) => void
-  moveItem: (fromIndex: number, toIndex: number) => void
-}
-
-export type PrimitiveFormNode<T> = {
-  control: InputControl<T>
-}
-
-export type ObjectFormNode<T extends object> = PrimitiveFormNode<T> & {
-  [Key in keyof T]: FormNode<T[Key]>
-}
-
-export type ArrayFormNode<T extends unknown[]> = {
-  [index: number]: FormNode<T[number]>
-  [Symbol.iterator](): IterableIterator<FormNode<T[number]>>
-  control: ArrayInputControl<T>
-}
-
-export type FormNode<T> = IsPlainObject<T> extends true
-  ? ObjectFormNode<T & object>
-  : IsArray<T> extends true
-  ? ArrayFormNode<T & unknown[]>
-  : PrimitiveFormNode<T>
-
-export type FormRoot<T> = {
-  controlsTree: FormNode<T>
+export type FormRoot<TState, TValidatedState = TState> = {
+  controlsTree: FormNode<TState>
+  validate: () => Promise<TValidatedState | undefined>
 }

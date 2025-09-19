@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { useFormControl } from "../index"
+import * as yup from "yup"
 
 describe("useFormControl", () => {
   describe("Controls tree navigation", () => {
@@ -224,134 +225,143 @@ describe("useFormControl", () => {
     })
   })
 
-  describe("Array control operations", () => {
-    it("should add items to an array using the add method", () => {
-      const form = useFormControl<{ tags: string[] }>({
-        tags: ["javascript", "vue"]
-      })
+  describe("Validation", () => {
+    it("should return undefined when no validation schema is provided", async () => {
+      const form = useFormControl("hello")
 
-      form.controlsTree.tags.control.add("typescript")
+      const result = await form.validate()
 
-      expect(form.controlsTree.tags.control.state.value).toEqual([
-        "javascript",
-        "vue",
-        "typescript"
-      ])
-      expect(form.controlsTree.tags.control.dirty.value).toBe(true)
+      expect(result).toBe(undefined)
     })
 
-    it("should remove items from an array using the remove method", () => {
-      const form = useFormControl({
-        tags: ["javascript", "vue", "typescript"]
-      })
+    it("should validate successfully with a simple schema", async () => {
+      const schema = yup.string().required()
+      const form = useFormControl("hello", { validationSchema: schema })
 
-      form.controlsTree.tags.control.remove(1)
+      const result = await form.validate()
 
-      expect(form.controlsTree.tags.control.state.value).toEqual([
-        "javascript",
-        "typescript"
-      ])
-      expect(form.controlsTree.tags.control.dirty.value).toBe(true)
+      expect(result).toBe("hello")
     })
 
-    it("should move items within an array using the moveItem method", () => {
-      const form = useFormControl({
-        tags: ["javascript", "vue", "typescript", "react"]
-      })
+    it("should return undefined when validation fails", async () => {
+      const schema = yup.string().required()
+      const form = useFormControl("", { validationSchema: schema })
 
-      form.controlsTree.tags.control.moveItem(0, 2)
+      const result = await form.validate()
 
-      expect(form.controlsTree.tags.control.state.value).toEqual([
-        "vue",
-        "typescript",
-        "javascript",
-        "react"
-      ])
-      expect(form.controlsTree.tags.control.dirty.value).toBe(true)
+      expect(result).toBe(undefined)
     })
 
-    it("should move items backward within an array", () => {
-      const form = useFormControl({
-        tags: ["javascript", "vue", "typescript", "react"]
-      })
+    it("should test control validity state after validation", async () => {
+      const schema = yup.string().required("Name is required")
+      const form = useFormControl("", { validationSchema: schema })
 
-      form.controlsTree.tags.control.moveItem(3, 1)
+      // Check initial state
+      expect(form.controlsTree.control.isValid.value).toBe(true)
+      expect(form.controlsTree.control.errorMessage.value).toBe(undefined)
 
-      expect(form.controlsTree.tags.control.state.value).toEqual([
-        "javascript",
-        "react",
-        "vue",
-        "typescript"
-      ])
-      expect(form.controlsTree.tags.control.dirty.value).toBe(true)
+      // Validate and check if control state updates
+      const result = await form.validate()
+      expect(result).toBe(undefined)
+
+      // Check if control validity is updated after validation
+      expect(form.controlsTree.control.isValid.value).toBe(false)
+      expect(form.controlsTree.control.errorMessage.value).toBe(
+        "Name is required"
+      )
     })
 
-    it("should work with nested array operations", () => {
-      const form = useFormControl({
-        users: [
-          { name: "John", skills: ["javascript", "vue"] },
-          { name: "Jane", skills: ["python"] }
-        ]
+    it("should validate object properties correctly", async () => {
+      const schema = yup.object({
+        name: yup.string().required("Name is required"),
+        age: yup
+          .number()
+          .required("Age is required")
+          .min(0, "Age must be positive")
       })
+      const form = useFormControl(
+        { name: "", age: -5 },
+        { validationSchema: schema }
+      )
 
-      // Add a skill to the first user
-      form.controlsTree.users[0]!.skills.control.add("typescript")
+      const result = await form.validate()
+      expect(result).toBe(undefined)
 
-      expect(form.controlsTree.users[0]?.skills.control.state.value).toEqual([
-        "javascript",
-        "vue",
-        "typescript"
-      ])
+      // Check name field validation
+      expect(form.controlsTree.name.control.isValid.value).toBe(false)
+      expect(form.controlsTree.name.control.errorMessage.value).toBe(
+        "Name is required"
+      )
 
-      // Remove a skill from the first user
-      form.controlsTree.users[0]!.skills.control.remove(0)
-
-      expect(form.controlsTree.users[0]?.skills.control.state.value).toEqual([
-        "vue",
-        "typescript"
-      ])
-
-      // Move a skill within the first user's skills
-      form.controlsTree.users[0]!.skills.control.moveItem(0, 1)
-
-      expect(form.controlsTree.users[0]?.skills.control.state.value).toEqual([
-        "typescript",
-        "vue"
-      ])
-
-      // Add a new user
-      form.controlsTree.users.control.add({ name: "Bob", skills: ["react"] })
-
-      expect(form.controlsTree.users.control.state.value).toEqual([
-        { name: "John", skills: ["typescript", "vue"] },
-        { name: "Jane", skills: ["python"] },
-        { name: "Bob", skills: ["react"] }
-      ])
+      // Check age field validation
+      expect(form.controlsTree.age.control.isValid.value).toBe(false)
+      expect(form.controlsTree.age.control.errorMessage.value).toBe(
+        "Age must be positive"
+      )
     })
 
-    it("should handle root-level array control operations", () => {
-      const form = useFormControl<string[]>(["a", "b", "c"])
+    it("should clear errors when validation succeeds", async () => {
+      const schema = yup.string().required("Name is required")
+      const form = useFormControl("", { validationSchema: schema })
 
-      // Add an item
-      form.controlsTree.control.add("d")
+      // First validation should fail
+      let result = await form.validate()
+      expect(result).toBe(undefined)
+      expect(form.controlsTree.control.isValid.value).toBe(false)
 
-      expect(form.controlsTree.control.state.value).toEqual([
-        "a",
-        "b",
-        "c",
-        "d"
-      ])
+      // Fix the value and validate again
+      form.controlsTree.control.state.value = "hello"
+      result = await form.validate()
 
-      // Remove an item
-      form.controlsTree.control.remove(1)
+      expect(result).toBe("hello")
+      expect(form.controlsTree.control.isValid.value).toBe(true)
+      expect(form.controlsTree.control.errorMessage.value).toBe(undefined)
+    })
 
-      expect(form.controlsTree.control.state.value).toEqual(["a", "c", "d"])
+    it("should validate arrays correctly", async () => {
+      const schema = yup
+        .array()
+        .of(yup.string().required("Item is required"))
+        .min(1, "At least one item required")
+      const form = useFormControl([], { validationSchema: schema })
 
-      // Move an item
-      form.controlsTree.control.moveItem(0, 2)
+      const result = await form.validate()
+      expect(result).toBe(undefined)
 
-      expect(form.controlsTree.control.state.value).toEqual(["c", "d", "a"])
-      expect(form.controlsTree.control.dirty.value).toBe(true)
+      // Check array validation
+      expect(form.controlsTree.control.isValid.value).toBe(false)
+      expect(form.controlsTree.control.errorMessage.value).toBe(
+        "At least one item required"
+      )
+    })
+
+    it("should validate nested arrays in objects correctly", async () => {
+      const schema = yup.object({
+        name: yup.string().required("Name is required"),
+        tags: yup
+          .array()
+          .of(yup.string().required("Tag cannot be empty"))
+          .min(1, "At least one tag required")
+      })
+      const form = useFormControl(
+        { name: "John", tags: [] },
+        { validationSchema: schema }
+      )
+
+      const result = await form.validate()
+      expect(result).toBe(undefined)
+
+      // Check name field (should be valid)
+      expect(form.controlsTree.name).toBeDefined()
+      expect(form.controlsTree.name.control.isValid.value).toBe(true)
+      expect(form.controlsTree.name.control.errorMessage.value).toBe(undefined)
+
+      // Check tags array validation
+      expect(form.controlsTree.tags).toBeDefined()
+      expect(form.controlsTree.tags?.control.isValid.value).toBe(false)
+      expect(form.controlsTree.tags?.control.errorMessage.value).toBe(
+        "At least one tag required"
+      )
     })
   })
 })

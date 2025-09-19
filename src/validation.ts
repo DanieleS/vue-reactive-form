@@ -1,6 +1,6 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec"
 
-type ValidationIssue = Omit<StandardSchemaV1.Issue, "path"> & {
+export type ValidationIssue = Omit<StandardSchemaV1.Issue, "path"> & {
   path: readonly (string | number | symbol)[]
 }
 
@@ -24,7 +24,9 @@ const normalizeIssue = (issue: StandardSchemaV1.Issue): ValidationIssue => ({
     ) ?? []
 })
 
-export async function standardValidate<T extends StandardSchemaV1>(
+export async function standardValidate<
+  T extends StandardSchemaV1<unknown, unknown>
+>(
   schema: T,
   input: StandardSchemaV1.InferInput<T>
 ): Promise<ValidationResult<StandardSchemaV1.InferOutput<T>>> {

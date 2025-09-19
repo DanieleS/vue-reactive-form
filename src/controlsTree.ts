@@ -1,12 +1,15 @@
 import type { Ref } from "@vue/reactivity"
-import type { FormNode, InputControl } from "./types"
 import { createArrayInputControl } from "./arrayInputControl"
 import { get } from "lodash-es"
+import type { InputControl } from "./types/controls"
+import type { FormNode } from "./types/formNodes"
+import type { ControlsCache, FormErrorsState } from "./types"
 
 const getInputControl = (
   formState: Ref<unknown>,
   defaultFormState: Ref<unknown>,
-  controlsCache: Map<string, InputControl<unknown>>,
+  formErrors: Ref<FormErrorsState>,
+  controlsCache: ControlsCache,
   path: (string | number | symbol)[]
 ) => {
   const concatenatedPath: string = path.join(".")
@@ -17,6 +20,7 @@ const getInputControl = (
       createArrayInputControl(
         formState,
         defaultFormState,
+        formErrors,
         path
       ) as InputControl<unknown>
     )
@@ -28,7 +32,8 @@ const getInputControl = (
 export const createControlsTree = <TState>(
   formState: Ref<TState>,
   defaultFormState: Ref<TState>,
-  controlsCache: Map<string, InputControl<unknown>>
+  formErrors: Ref<FormErrorsState>,
+  controlsCache: ControlsCache
 ) => {
   const buildProxyHandler = (path: (string | number | symbol)[] = []) => ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,6 +48,7 @@ export const createControlsTree = <TState>(
             target[i] = buildProxyControl(
               formState,
               defaultFormState,
+              formErrors,
               controlsCache,
               iteratorPath
             )
@@ -58,6 +64,7 @@ export const createControlsTree = <TState>(
           buildProxyControl(
             formState,
             defaultFormState,
+            formErrors,
             controlsCache,
             fullPath
           )
@@ -71,7 +78,8 @@ export const createControlsTree = <TState>(
   const buildProxyControl = (
     formState: Ref<TState>,
     defaultFormState: Ref<TState>,
-    controlsCache: Map<string, InputControl<unknown>>,
+    formErrors: Ref<FormErrorsState>,
+    controlsCache: ControlsCache,
     path: (string | number | symbol)[]
   ) => {
     return new Proxy(
@@ -79,6 +87,7 @@ export const createControlsTree = <TState>(
         control: getInputControl(
           formState,
           defaultFormState,
+          formErrors,
           controlsCache,
           path
         )
