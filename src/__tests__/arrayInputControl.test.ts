@@ -7,7 +7,12 @@ describe("createArrayInputControl", () => {
     it("should add an item with a default value to the array", () => {
       const formState = ref([1, 2, 3])
       const defaultFormState = ref([1, 2, 3])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.add(4)
       expect(control.state.value).toEqual([1, 2, 3, 4])
@@ -17,7 +22,12 @@ describe("createArrayInputControl", () => {
     it("should add an item without a default value (undefined) to the array", () => {
       const formState = ref([1, 2, 3])
       const defaultFormState = ref([1, 2, 3])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.add()
       expect(control.state.value).toEqual([1, 2, 3, undefined])
@@ -27,7 +37,12 @@ describe("createArrayInputControl", () => {
     it("should add objects to an array", () => {
       const formState = ref([{ name: "John" }, { name: "Jane" }])
       const defaultFormState = ref([{ name: "John" }, { name: "Jane" }])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.add({ name: "Bob" })
       expect(control.state.value).toEqual([
@@ -41,7 +56,12 @@ describe("createArrayInputControl", () => {
     it("should add empty object to an array", () => {
       const formState = ref([{ name: "John" }, { name: "Jane" }])
       const defaultFormState = ref([{ name: "John" }, { name: "Jane" }])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.add({})
       expect(control.state.value).toEqual([
@@ -55,7 +75,12 @@ describe("createArrayInputControl", () => {
     it("should handle adding to an empty array", () => {
       const formState = ref([])
       const defaultFormState = ref([])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.add("first item")
       expect(control.state.value).toEqual(["first item"])
@@ -65,7 +90,12 @@ describe("createArrayInputControl", () => {
     it("should handle adding when state is undefined", () => {
       const formState = ref(undefined)
       const defaultFormState = ref([])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.add("item")
       expect(control.state.value).toEqual(["item"])
@@ -76,7 +106,12 @@ describe("createArrayInputControl", () => {
     it("should remove an item at the specified index", () => {
       const formState = ref([1, 2, 3, 4])
       const defaultFormState = ref([1, 2, 3, 4])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.remove(1) // Remove element at index 1 (value 2)
       expect(control.state.value).toEqual([1, 3, 4])
@@ -86,7 +121,12 @@ describe("createArrayInputControl", () => {
     it("should remove the first item", () => {
       const formState = ref(["a", "b", "c"])
       const defaultFormState = ref(["a", "b", "c"])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.remove(0)
       expect(control.state.value).toEqual(["b", "c"])
@@ -96,7 +136,12 @@ describe("createArrayInputControl", () => {
     it("should remove the last item", () => {
       const formState = ref(["a", "b", "c"])
       const defaultFormState = ref(["a", "b", "c"])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.remove(2)
       expect(control.state.value).toEqual(["a", "b"])
@@ -114,7 +159,12 @@ describe("createArrayInputControl", () => {
         { id: 2, name: "Jane" },
         { id: 3, name: "Bob" }
       ])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.remove(1) // Remove Jane
       expect(control.state.value).toEqual([
@@ -127,7 +177,12 @@ describe("createArrayInputControl", () => {
     it("should handle removing from a single-item array", () => {
       const formState = ref(["only item"])
       const defaultFormState = ref(["only item"])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.remove(0)
       expect(control.state.value).toEqual([])
@@ -137,7 +192,12 @@ describe("createArrayInputControl", () => {
     it("should handle removing when state is undefined", () => {
       const formState = ref(undefined)
       const defaultFormState = ref([])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       // Should not throw an error
       control.remove(0)
@@ -149,7 +209,12 @@ describe("createArrayInputControl", () => {
     it("should move an item from one index to another", () => {
       const formState = ref(["a", "b", "c", "d"])
       const defaultFormState = ref(["a", "b", "c", "d"])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.moveItem(0, 2) // Move "a" from index 0 to index 2
       expect(control.state.value).toEqual(["b", "c", "a", "d"])
@@ -159,7 +224,12 @@ describe("createArrayInputControl", () => {
     it("should move an item forward in the array", () => {
       const formState = ref([1, 2, 3, 4, 5])
       const defaultFormState = ref([1, 2, 3, 4, 5])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.moveItem(1, 3) // Move element at index 1 to index 3
       expect(control.state.value).toEqual([1, 3, 4, 2, 5])
@@ -169,7 +239,12 @@ describe("createArrayInputControl", () => {
     it("should move an item backward in the array", () => {
       const formState = ref([1, 2, 3, 4, 5])
       const defaultFormState = ref([1, 2, 3, 4, 5])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.moveItem(3, 1) // Move element at index 3 to index 1
       expect(control.state.value).toEqual([1, 4, 2, 3, 5])
@@ -179,7 +254,12 @@ describe("createArrayInputControl", () => {
     it("should handle moving to the same index (no change)", () => {
       const formState = ref(["a", "b", "c"])
       const defaultFormState = ref(["a", "b", "c"])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.moveItem(1, 1) // Move item at index 1 to index 1
       expect(control.state.value).toEqual(["a", "b", "c"])
@@ -197,7 +277,12 @@ describe("createArrayInputControl", () => {
         { id: 2, name: "Jane" },
         { id: 3, name: "Bob" }
       ])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.moveItem(0, 2) // Move John from first to last position
       expect(control.state.value).toEqual([
@@ -211,7 +296,12 @@ describe("createArrayInputControl", () => {
     it("should clamp indices to array bounds", () => {
       const formState = ref(["a", "b", "c"])
       const defaultFormState = ref(["a", "b", "c"])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       // Move with out-of-bounds indices should be clamped
       control.moveItem(-1, 10) // Should clamp to valid indices
@@ -223,7 +313,12 @@ describe("createArrayInputControl", () => {
     it("should handle moving in a two-element array", () => {
       const formState = ref(["first", "second"])
       const defaultFormState = ref(["first", "second"])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       control.moveItem(0, 1) // Swap elements
       expect(control.state.value).toEqual(["second", "first"])
@@ -233,7 +328,12 @@ describe("createArrayInputControl", () => {
     it("should handle moving when state is undefined", () => {
       const formState = ref(undefined)
       const defaultFormState = ref([])
-      const control = createArrayInputControl(formState, defaultFormState)
+      const errors = ref({})
+      const control = createArrayInputControl(
+        formState,
+        defaultFormState,
+        errors
+      )
 
       // Should not throw an error
       control.moveItem(0, 1)
