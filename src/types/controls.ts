@@ -9,7 +9,7 @@ export type InputControl<T> = {
   errorMessage: ComputedRef<string | undefined>
   clear: () => void
   reset: () => void
-  updateDefaultValue: (newDefaultValue: T) => void
+  updateDefaultValue: (newDefaultValue?: T) => void
 }
 
 export type ArrayInputControl<T extends Array<unknown>> = InputControl<T> & {
