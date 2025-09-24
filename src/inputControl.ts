@@ -2,7 +2,7 @@ import { computed, type Ref } from "@vue/reactivity"
 import { get, isEqual, isObject, set } from "lodash-es"
 import { deepPick } from "./utils"
 import type { InputControl } from "./types/controls"
-import type { FormErrorsState } from "./types"
+import type { FormErrors } from "./types"
 
 /**
  * This function gets the value of a property in a reactive object, given the path.
@@ -16,7 +16,7 @@ import type { FormErrorsState } from "./types"
 const formGet = (target: any, p: (string | symbol | number)[]) =>
   p.length ? get(target, p) : target
 
-const errorsGet = (target: FormErrorsState, p: (string | symbol | number)[]) =>
+const errorsGet = (target: FormErrors, p: (string | symbol | number)[]) =>
   target[p.length ? p.join(".") : ""] ?? []
 
 /**
@@ -56,7 +56,7 @@ const isDirty = (value: unknown, defaultValue: unknown) => {
 export const createInputControl = <TState>(
   formState: Ref<unknown>,
   defaultFormState: Ref<unknown>,
-  formErrors: Ref<FormErrorsState>,
+  formErrors: Ref<FormErrors>,
   path: (string | number | symbol)[] = []
 ): InputControl<TState> => {
   // Updating the default value should be discouraged, so it's exposed as a read-only computed

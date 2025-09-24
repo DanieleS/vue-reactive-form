@@ -1,6 +1,11 @@
 import { ref, type Ref } from "@vue/reactivity"
 import { cloneDeep, groupBy } from "lodash-es"
-import type { FormErrorsState, FormRoot, UseFormControlOptions } from "./types"
+import type {
+  FormErrors,
+  FormRoot,
+  HandleSubmitOptions,
+  UseFormOptions
+} from "./types"
 import type { PartialOrPrimitive } from "./types/utils"
 import { createControlsTree } from "./controlsTree"
 import { standardValidate } from "./validation"
@@ -8,7 +13,7 @@ import type { InputControl } from "./types/controls"
 
 export const useForm = <TState, TValidatedState = TState>(
   defaultState?: PartialOrPrimitive<TState>,
-  options: UseFormControlOptions<TState, TValidatedState> = {}
+  options: UseFormOptions<TState, TValidatedState> = {}
 ): FormRoot<TState, TValidatedState> => {
   const { validationSchema } = options
 
@@ -17,9 +22,9 @@ export const useForm = <TState, TValidatedState = TState>(
   >
   const state = ref(cloneDeep(defaultState)) as Ref<TState>
   const controlsCache = new Map<string, InputControl<unknown>>()
-  const errors = ref<FormErrorsState>({})
+  const errors = ref<FormErrors>({})
 
-  const controlsTree = createControlsTree<TState>(
+  const form = createControlsTree<TState>(
     state,
     defaultFormState,
     errors,
@@ -31,7 +36,7 @@ export const useForm = <TState, TValidatedState = TState>(
       console.warn(
         "[vue-reactive-form] No validation schema provided. Skipping validation."
       )
-      return
+      return state.value as unknown as TValidatedState // FIXME!!
     }
 
     errors.value = {}
@@ -48,8 +53,26 @@ export const useForm = <TState, TValidatedState = TState>(
     }
   }
 
+  const handleSubmit = (options: HandleSubmitOptions<TValidatedState> = {}) => {
+    const { onSuccess, onError } = options
+
+    return async (event?: SubmitEvent) => {
+      event?.preventDefault()
+
+      const validationResult = await validate()
+
+      if (validationResult) {
+        onSuccess?.(validationResult)
+      } else {
+        onError?.(errors.value)
+      }
+    }
+  }
+
   return {
-    controlsTree,
-    validate
+    form,
+    errors,
+    validate,
+    handleSubmit
   }
 }

@@ -2,12 +2,12 @@ import type { Ref } from "@vue/reactivity"
 import { createArrayInputControl } from "./arrayInputControl"
 import { get } from "lodash-es"
 import type { InputControl } from "./types/controls"
-import type { ControlsCache, FormErrorsState } from "./types"
+import type { ControlsCache, FormErrors } from "./types"
 
 const getInputControl = (
   formState: Ref<unknown>,
   defaultFormState: Ref<unknown>,
-  formErrors: Ref<FormErrorsState>,
+  formErrors: Ref<FormErrors>,
   controlsCache: ControlsCache,
   path: (string | number | symbol)[]
 ) => {
@@ -31,7 +31,7 @@ const getInputControl = (
 export const createControlsTree = <TState>(
   formState: Ref<TState>,
   defaultFormState: Ref<TState | undefined>,
-  formErrors: Ref<FormErrorsState>,
+  formErrors: Ref<FormErrors>,
   controlsCache: ControlsCache
 ) => {
   const buildProxyHandler = (path: (string | number | symbol)[] = []) => ({
@@ -77,7 +77,7 @@ export const createControlsTree = <TState>(
   const buildProxyControl = (
     formState: Ref<TState>,
     defaultFormState: Ref<TState | undefined>,
-    formErrors: Ref<FormErrorsState>,
+    formErrors: Ref<FormErrors>,
     controlsCache: ControlsCache,
     path: (string | number | symbol)[]
   ) => {
