@@ -1,8 +1,8 @@
 import { computed, type Ref } from "@vue/reactivity"
-import type { InputControl } from "./types"
 import { get, isEqual, isObject, set } from "lodash-es"
 import { deepPick } from "./utils"
-import { createArrayInputControl } from "./arrayInputControl"
+import type { InputControl } from "./types/controls"
+import type { FormErrors } from "./types"
 
 /**
  * This function gets the value of a property in a reactive object, given the path.
@@ -15,6 +15,9 @@ import { createArrayInputControl } from "./arrayInputControl"
  */
 const formGet = (target: any, p: (string | symbol | number)[]) =>
   p.length ? get(target, p) : target
+
+const errorsGet = (target: FormErrors, p: (string | symbol | number)[]) =>
+  target[p.length ? p.join(".") : ""] ?? []
 
 /**
  * This function sets the value of a property in a reactive object, given the path.
@@ -53,6 +56,7 @@ const isDirty = (value: unknown, defaultValue: unknown) => {
 export const createInputControl = <TState>(
   formState: Ref<unknown>,
   defaultFormState: Ref<unknown>,
+  formErrors: Ref<FormErrors>,
   path: (string | number | symbol)[] = []
 ): InputControl<TState> => {
   // Updating the default value should be discouraged, so it's exposed as a read-only computed
@@ -68,6 +72,16 @@ export const createInputControl = <TState>(
 
   const dirty = computed(() => isDirty(state.value, defaultValue.value))
 
+  const isValid = computed(() => {
+    const issues = errorsGet(formErrors.value, path)
+    return issues.length === 0
+  })
+
+  const errorMessage = computed<string | undefined>(() => {
+    const issues = errorsGet(formErrors.value, path)
+    return issues[0]?.message
+  })
+
   const clear = () => {
     formSet(formState, path, undefined)
   }
@@ -82,6 +96,8 @@ export const createInputControl = <TState>(
     defaultValue,
     state,
     dirty,
+    isValid,
+    errorMessage,
     clear,
     reset,
     updateDefaultValue

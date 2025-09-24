@@ -1,41 +1,28 @@
-import type { ComputedRef, Ref } from "@vue/reactivity"
-import type { IsArray, IsPlainObject, PartialOrPrimitive } from "./utils"
+import type { StandardSchemaV1 } from "@standard-schema/spec"
+import type { FormNode } from "./formNodes"
+import type { InputControl } from "./controls"
+import type { ValidationIssue } from "../validation"
+import type { Ref } from "@vue/reactivity"
 
-export type InputControl<T> = {
-  state: Ref<T | undefined>
-  defaultValue: ComputedRef<T | undefined>
-  dirty: ComputedRef<boolean>
-  clear: () => void
-  reset: () => void
-  updateDefaultValue: (newDefaultValue: T) => void
+export type ControlsCache = Map<string, InputControl<unknown>>
+export type FormErrors = Record<string, ValidationIssue[]>
+
+export type UseFormOptions<TState, TValidatedState = TState> = {
+  validationSchema?: StandardSchemaV1<TState, TValidatedState>
 }
 
-export type ArrayInputControl<T extends Array<unknown>> = InputControl<T> & {
-  add: (defaultValue?: PartialOrPrimitive<T[number]>) => void
-  remove: (index: number) => void
-  moveItem: (fromIndex: number, toIndex: number) => void
+export type HandleSubmitOptions<TValidatedState> = {
+  onSuccess?: (state: TValidatedState) => void
+  onError?: (errors: FormErrors) => void
 }
 
-export type PrimitiveFormNode<T> = {
-  control: InputControl<T>
-}
+export type HandleFormSubmit<TValidatedState> = (
+  opts?: HandleSubmitOptions<TValidatedState>
+) => (e?: SubmitEvent) => Promise<void>
 
-export type ObjectFormNode<T extends object> = PrimitiveFormNode<T> & {
-  [Key in keyof T]: FormNode<T[Key]>
-}
-
-export type ArrayFormNode<T extends unknown[]> = {
-  [index: number]: FormNode<T[number]>
-  [Symbol.iterator](): IterableIterator<FormNode<T[number]>>
-  control: ArrayInputControl<T>
-}
-
-export type FormNode<T> = IsPlainObject<T> extends true
-  ? ObjectFormNode<T & object>
-  : IsArray<T> extends true
-  ? ArrayFormNode<T & unknown[]>
-  : PrimitiveFormNode<T>
-
-export type FormRoot<T> = {
-  controlsTree: FormNode<T>
+export type FormRoot<TState, TValidatedState = TState> = {
+  form: FormNode<TState>
+  errors: Ref<FormErrors>
+  validate: () => Promise<TValidatedState | undefined>
+  handleSubmit: HandleFormSubmit<TValidatedState>
 }

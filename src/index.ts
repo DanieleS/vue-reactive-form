@@ -1,27 +1,78 @@
 import { ref, type Ref } from "@vue/reactivity"
-import { cloneDeep } from "lodash-es"
-import type { FormRoot, InputControl } from "./types"
+import { cloneDeep, groupBy } from "lodash-es"
+import type {
+  FormErrors,
+  FormRoot,
+  HandleSubmitOptions,
+  UseFormOptions
+} from "./types"
 import type { PartialOrPrimitive } from "./types/utils"
 import { createControlsTree } from "./controlsTree"
+import { standardValidate } from "./validation"
+import type { InputControl } from "./types/controls"
 
-export const useFormControl = <TState, TValidatedState = TState>(
-  defaultState?: PartialOrPrimitive<TState>
-): FormRoot<TState> => {
-  type WrappedState = { inner: TState }
+export const useForm = <TState, TValidatedState = TState>(
+  defaultState?: PartialOrPrimitive<TState>,
+  options: UseFormOptions<TState, TValidatedState> = {}
+): FormRoot<TState, TValidatedState> => {
+  const { validationSchema } = options
 
-  const defaultFormState = ref({
-    inner: cloneDeep(defaultState)
-  }) as Ref<WrappedState>
-  const state = ref({ inner: cloneDeep(defaultState) }) as Ref<WrappedState>
+  const defaultFormState = ref(cloneDeep(defaultState)) as Ref<
+    TState | undefined
+  >
+  const state = ref(cloneDeep(defaultState)) as Ref<TState>
   const controlsCache = new Map<string, InputControl<unknown>>()
+  const errors = ref<FormErrors>({})
 
-  const controlsTree = createControlsTree<WrappedState>(
+  const form = createControlsTree<TState>(
     state,
     defaultFormState,
+    errors,
     controlsCache
   )
 
+  const validate = async () => {
+    if (!validationSchema) {
+      console.warn(
+        "[vue-reactive-form] No validation schema provided. Skipping validation."
+      )
+      return state.value as unknown as TValidatedState // FIXME!!
+    }
+
+    errors.value = {}
+
+    const result = await standardValidate(validationSchema, state.value)
+
+    if (!result.success) {
+      errors.value = groupBy(
+        result.issues,
+        (issue) => `${issue.path.join(".")}`
+      )
+    } else {
+      return result.output
+    }
+  }
+
+  const handleSubmit = (options: HandleSubmitOptions<TValidatedState> = {}) => {
+    const { onSuccess, onError } = options
+
+    return async (event?: SubmitEvent) => {
+      event?.preventDefault()
+
+      const validationResult = await validate()
+
+      if (validationResult) {
+        onSuccess?.(validationResult)
+      } else {
+        onError?.(errors.value)
+      }
+    }
+  }
+
   return {
-    controlsTree: controlsTree.inner
+    form,
+    errors,
+    validate,
+    handleSubmit
   }
 }
