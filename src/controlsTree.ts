@@ -83,7 +83,7 @@ export const createControlsTree = <TState>(
   ) => {
     return new Proxy(
       {
-        control: getInputControl(
+        $control: getInputControl(
           formState,
           defaultFormState,
           formErrors,

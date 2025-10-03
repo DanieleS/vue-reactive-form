@@ -7,20 +7,20 @@ describe("useForm", () => {
     it("should handle primitive root state", () => {
       const { form } = useForm("Hello World")
 
-      expect(form.control.state.value).toBe("Hello World")
+      expect(form.$control.state.value).toBe("Hello World")
     })
 
     it("should handle array root state", () => {
       const { form } = useForm(["Hello World"])
 
-      expect(form.control.state.value).toEqual(["Hello World"])
+      expect(form.$control.state.value).toEqual(["Hello World"])
     })
 
     it("should navigate to primitive properties", () => {
       const { form } = useForm({ name: "John", age: 30 })
 
-      expect(form.name.control.state.value).toBe("John")
-      expect(form.age.control.state.value).toBe(30)
+      expect(form.name.$control.state.value).toBe("John")
+      expect(form.age.$control.state.value).toBe(30)
     })
 
     it("should navigate to nested object properties", () => {
@@ -33,8 +33,8 @@ describe("useForm", () => {
         }
       })
 
-      expect(form.user.profile.name.control.state.value).toBe("John")
-      expect(form.user.profile.email.control.state.value).toBe(
+      expect(form.user.profile.name.$control.state.value).toBe("John")
+      expect(form.user.profile.email.$control.state.value).toBe(
         "john@example.com"
       )
     })
@@ -44,7 +44,7 @@ describe("useForm", () => {
         tags: ["javascript", "vue", "typescript"]
       })
 
-      expect(form.tags.control.state.value).toEqual([
+      expect(form.tags.$control.state.value).toEqual([
         "javascript",
         "vue",
         "typescript"
@@ -59,10 +59,10 @@ describe("useForm", () => {
         ]
       })
 
-      expect(form.users[0]?.name.control.state.value).toBe("John")
-      expect(form.users[0]?.age.control.state.value).toBe(30)
-      expect(form.users[1]?.name.control.state.value).toBe("Jane")
-      expect(form.users[1]?.age.control.state.value).toBe(25)
+      expect(form.users[0]?.name.$control.state.value).toBe("John")
+      expect(form.users[0]?.age.$control.state.value).toBe(30)
+      expect(form.users[1]?.name.$control.state.value).toBe("Jane")
+      expect(form.users[1]?.age.$control.state.value).toBe(25)
     })
 
     it("should iterate over array elements", () => {
@@ -72,7 +72,7 @@ describe("useForm", () => {
 
       const values = []
       for (const item of form.items) {
-        values.push(item.control.state.value)
+        values.push(item.$control.state.value)
       }
 
       expect(values).toEqual(["a", "b", "c"])
@@ -93,17 +93,17 @@ describe("useForm", () => {
         }
       })
 
-      expect(form.company.departments[0]?.name.control.state.value).toBe(
+      expect(form.company.departments[0]?.name.$control.state.value).toBe(
         "Engineering"
       )
       expect(
-        form.company.departments[0]?.employees[0]?.name.control.state.value
+        form.company.departments[0]?.employees[0]?.name.$control.state.value
       ).toBe("John")
       expect(
-        form.company.departments[0]?.employees[0]?.skills.control.state.value
+        form.company.departments[0]?.employees[0]?.skills.$control.state.value
       ).toEqual(["js", "vue"])
       expect(
-        form.company.departments[0]?.employees[1]?.skills[1]?.control.state
+        form.company.departments[0]?.employees[1]?.skills[1]?.$control.state
           .value
       ).toBe("django")
     })
@@ -111,8 +111,8 @@ describe("useForm", () => {
     it("should maintain the same control reference for the same path", () => {
       const { form } = useForm({ name: "John" })
 
-      const control1 = form.name.control
-      const control2 = form.name.control
+      const control1 = form.name.$control
+      const control2 = form.name.$control
 
       expect(control1).toBe(control2)
     })
@@ -123,15 +123,15 @@ describe("useForm", () => {
         emptyArray: []
       })
 
-      expect(form.emptyObject.control.state.value).toEqual({})
-      expect(form.emptyArray.control.state.value).toEqual([])
+      expect(form.emptyObject.$control.state.value).toEqual({})
+      expect(form.emptyArray.$control.state.value).toEqual([])
     })
 
     it("should handle undefined properties", () => {
       const { form } = useForm<{ name: string; age: number }>({})
 
-      expect(form.name?.control.state.value).toBe(undefined)
-      expect(form.age?.control.state.value).toBe(undefined)
+      expect(form.name.$control.state.value).toBe(undefined)
+      expect(form.age.$control.state.value).toBe(undefined)
     })
 
     it("should update state through controls tree navigation", () => {
@@ -139,28 +139,28 @@ describe("useForm", () => {
         user: { name: "John" }
       })
 
-      form.user.name.control.state.value = "Jane"
+      form.user.name.$control.state.value = "Jane"
 
-      expect(form.user.name.control.state.value).toBe("Jane")
-      expect(form.user.name.control.dirty.value).toBe(true)
+      expect(form.user.name.$control.state.value).toBe("Jane")
+      expect(form.user.name.$control.dirty.value).toBe(true)
     })
 
     it("should update state in root primitive through controls tree navigation", () => {
       const { form } = useForm("Hello")
 
-      form.control.state.value = "World"
+      form.$control.state.value = "World"
 
-      expect(form.control.state.value).toBe("World")
-      expect(form.control.dirty.value).toBe(true)
+      expect(form.$control.state.value).toBe("World")
+      expect(form.$control.dirty.value).toBe(true)
     })
 
     it("should update state in root array through controls tree navigation", () => {
       const { form } = useForm<string[]>(["a", "b", "c"])
 
-      form.control.state.value = ["x", "y", "z"]
+      form.$control.state.value = ["x", "y", "z"]
 
-      expect(form.control.state.value).toEqual(["x", "y", "z"])
-      expect(form.control.dirty.value).toBe(true)
+      expect(form.$control.state.value).toEqual(["x", "y", "z"])
+      expect(form.$control.dirty.value).toBe(true)
     })
 
     it("should update state in object through controls tree navigation", () => {
@@ -168,15 +168,15 @@ describe("useForm", () => {
         user: { name: "John" }
       })
 
-      form.user.name.control.state.value = "Jane"
+      form.user.name.$control.state.value = "Jane"
 
-      expect(form.user.name.control.state.value).toBe("Jane")
-      expect(form.user.name.control.dirty.value).toBe(true)
+      expect(form.user.name.$control.state.value).toBe("Jane")
+      expect(form.user.name.$control.dirty.value).toBe(true)
 
-      form.user.control.state.value = { name: "Alice" }
+      form.user.$control.state.value = { name: "Alice" }
 
-      expect(form.user.name.control.state.value).toBe("Alice")
-      expect(form.user.name.control.dirty.value).toBe(true)
+      expect(form.user.name.$control.state.value).toBe("Alice")
+      expect(form.user.name.$control.dirty.value).toBe(true)
     })
 
     it("should update state in arrays through controls tree navigation", () => {
@@ -184,10 +184,10 @@ describe("useForm", () => {
         user: { skills: ["js", "vue"] }
       })
 
-      form.user.skills[0]!.control.state.value = "react"
+      form.user.skills[0]!.$control.state.value = "react"
 
-      expect(form.user.skills[0]?.control.state.value).toBe("react")
-      expect(form.user.skills[0]?.control.dirty.value).toBe(true)
+      expect(form.user.skills[0]?.$control.state.value).toBe("react")
+      expect(form.user.skills[0]?.$control.dirty.value).toBe(true)
     })
 
     it("should handle mixed data types in complex structures", () => {
@@ -207,11 +207,13 @@ describe("useForm", () => {
         scores: [85, 92, 78]
       })
 
-      expect(form.id.control.state.value).toBe(1)
-      expect(form.active.control.state.value).toBe(true)
-      expect(form.user.metadata.tags[0]?.control.state.value).toBe("admin")
-      expect(form.user.metadata.settings.theme.control.state.value).toBe("dark")
-      expect(form.scores[1]?.control.state.value).toBe(92)
+      expect(form.id.$control.state.value).toBe(1)
+      expect(form.active.$control.state.value).toBe(true)
+      expect(form.user.metadata.tags[0]?.$control.state.value).toBe("admin")
+      expect(form.user.metadata.settings.theme.$control.state.value).toBe(
+        "dark"
+      )
+      expect(form.scores[1]?.$control.state.value).toBe(92)
     })
   })
 
@@ -247,16 +249,16 @@ describe("useForm", () => {
       const { form, validate } = useForm("", { validationSchema: schema })
 
       // Check initial state
-      expect(form.control.isValid.value).toBe(true)
-      expect(form.control.errorMessage.value).toBe(undefined)
+      expect(form.$control.isValid.value).toBe(true)
+      expect(form.$control.errorMessage.value).toBe(undefined)
 
       // Validate and check if control state updates
       const result = await validate()
       expect(result).toBe(undefined)
 
       // Check if control validity is updated after validation
-      expect(form.control.isValid.value).toBe(false)
-      expect(form.control.errorMessage.value).toBe("Name is required")
+      expect(form.$control.isValid.value).toBe(false)
+      expect(form.$control.errorMessage.value).toBe("Name is required")
     })
 
     it("should validate object properties correctly", async () => {
@@ -276,12 +278,12 @@ describe("useForm", () => {
       expect(result).toBe(undefined)
 
       // Check name field validation
-      expect(form.name.control.isValid.value).toBe(false)
-      expect(form.name.control.errorMessage.value).toBe("Name is required")
+      expect(form.name.$control.isValid.value).toBe(false)
+      expect(form.name.$control.errorMessage.value).toBe("Name is required")
 
       // Check age field validation
-      expect(form.age.control.isValid.value).toBe(false)
-      expect(form.age.control.errorMessage.value).toBe("Age must be positive")
+      expect(form.age.$control.isValid.value).toBe(false)
+      expect(form.age.$control.errorMessage.value).toBe("Age must be positive")
     })
 
     it("should clear errors when validation succeeds", async () => {
@@ -291,15 +293,15 @@ describe("useForm", () => {
       // First validation should fail
       let result = await validate()
       expect(result).toBe(undefined)
-      expect(form.control.isValid.value).toBe(false)
+      expect(form.$control.isValid.value).toBe(false)
 
       // Fix the value and validate again
-      form.control.state.value = "hello"
+      form.$control.state.value = "hello"
       result = await validate()
 
       expect(result).toBe("hello")
-      expect(form.control.isValid.value).toBe(true)
-      expect(form.control.errorMessage.value).toBe(undefined)
+      expect(form.$control.isValid.value).toBe(true)
+      expect(form.$control.errorMessage.value).toBe(undefined)
     })
 
     it("should validate arrays correctly", async () => {
@@ -313,8 +315,10 @@ describe("useForm", () => {
       expect(result).toBe(undefined)
 
       // Check array validation
-      expect(form.control.isValid.value).toBe(false)
-      expect(form.control.errorMessage.value).toBe("At least one item required")
+      expect(form.$control.isValid.value).toBe(false)
+      expect(form.$control.errorMessage.value).toBe(
+        "At least one item required"
+      )
     })
 
     it("should validate nested arrays in objects correctly", async () => {
@@ -335,13 +339,13 @@ describe("useForm", () => {
 
       // Check name field (should be valid)
       expect(form.name).toBeDefined()
-      expect(form.name.control.isValid.value).toBe(true)
-      expect(form.name.control.errorMessage.value).toBe(undefined)
+      expect(form.name.$control.isValid.value).toBe(true)
+      expect(form.name.$control.errorMessage.value).toBe(undefined)
 
       // Check tags array validation
       expect(form.tags).toBeDefined()
-      expect(form.tags?.control.isValid.value).toBe(false)
-      expect(form.tags?.control.errorMessage.value).toBe(
+      expect(form.tags?.$control.isValid.value).toBe(false)
+      expect(form.tags?.$control.errorMessage.value).toBe(
         "At least one tag required"
       )
     })
