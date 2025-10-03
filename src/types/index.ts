@@ -8,7 +8,7 @@ export type ControlsCache = Map<string, InputControl<unknown>>
 export type FormErrors = Record<string, ValidationIssue[]>
 
 export type UseFormOptions<TState, TValidatedState = TState> = {
-  validationSchema?: StandardSchemaV1<TState, TValidatedState>
+  validationSchema: StandardSchemaV1<TState, TValidatedState>
 }
 
 export type HandleSubmitOptions<TValidatedState> = {

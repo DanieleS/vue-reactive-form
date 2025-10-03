@@ -10,12 +10,22 @@ import type { PartialOrPrimitive } from "./types/utils"
 import { createControlsTree } from "./controlsTree"
 import { standardValidate } from "./validation"
 import type { InputControl } from "./types/controls"
+import type { O } from "ts-toolbelt"
 
-export const useForm = <TState, TValidatedState = TState>(
+export function useForm<TState, TValidatedState = TState>(
+  defaultState: PartialOrPrimitive<TState> | undefined,
+  options: UseFormOptions<TState, TValidatedState>
+): FormRoot<TState, TValidatedState>
+
+export function useForm<TState>(
+  defaultState?: PartialOrPrimitive<TState>
+): FormRoot<TState, TState extends object ? O.Partial<TState, "deep"> : TState>
+
+export function useForm<TState, TValidatedState = TState>(
   defaultState?: PartialOrPrimitive<TState>,
-  options: UseFormOptions<TState, TValidatedState> = {}
-): FormRoot<TState, TValidatedState> => {
-  const { validationSchema } = options
+  options?: UseFormOptions<TState, TValidatedState>
+): FormRoot<TState, unknown> {
+  const { validationSchema } = options ?? {}
 
   const defaultFormState = ref(cloneDeep(defaultState)) as Ref<
     TState | undefined
@@ -36,7 +46,7 @@ export const useForm = <TState, TValidatedState = TState>(
       console.warn(
         "[vue-reactive-form] No validation schema provided. Skipping validation."
       )
-      return state.value as unknown as TValidatedState // FIXME!!
+      return state.value
     }
 
     errors.value = {}
@@ -53,7 +63,9 @@ export const useForm = <TState, TValidatedState = TState>(
     }
   }
 
-  const handleSubmit = (options: HandleSubmitOptions<TValidatedState> = {}) => {
+  const handleSubmit = (
+    options: HandleSubmitOptions<TState | TValidatedState> = {}
+  ) => {
     const { onSuccess, onError } = options
 
     return async (event?: SubmitEvent) => {
