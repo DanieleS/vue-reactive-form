@@ -2,7 +2,7 @@ import type { ArrayInputControl, InputControl } from "./controls"
 import type { IsArray, IsPlainObject } from "./utils"
 
 export type PrimitiveFormNode<T> = {
-  control: InputControl<T>
+  $control: InputControl<T>
 }
 
 export type ObjectFormNode<T extends object> = PrimitiveFormNode<T> & {
@@ -12,7 +12,7 @@ export type ObjectFormNode<T extends object> = PrimitiveFormNode<T> & {
 export type ArrayFormNode<T extends unknown[]> = {
   [index: number]: FormNode<T[number]>
   [Symbol.iterator](): IterableIterator<FormNode<T[number]>>
-  control: ArrayInputControl<T>
+  $control: ArrayInputControl<T>
 }
 
 export type FormNode<T> = IsPlainObject<T> extends true
