@@ -73,15 +73,9 @@ export const useForm = <TState, TValidatedState = TState>(
     }
   }
 
-  watch(
-    state,
-    async () => {
-      if (validateOn === "change") {
-        validate()
-      }
-    },
-    { deep: true }
-  )
+  if (validateOn === "change") {
+    watch(state, validate, { deep: true })
+  }
 
   return {
     form,
