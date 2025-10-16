@@ -3,6 +3,7 @@ import { get, isEqual, isObject, set } from "lodash-es"
 import { deepPick } from "./utils"
 import type { InputControl } from "./types/controls"
 import type { FormErrors } from "./types"
+import type { PartialOrPrimitive } from "./types/utils"
 
 /**
  * This function gets the value of a property in a reactive object, given the path.
@@ -88,7 +89,7 @@ export const createInputControl = <TState>(
   const reset = () => {
     state.value = defaultValue.value
   }
-  const updateDefaultValue = (newDefaultValue?: TState) => {
+  const updateDefaultValue = (newDefaultValue?: PartialOrPrimitive<TState>) => {
     formSet(defaultFormState, path, newDefaultValue)
   }
 

@@ -19,9 +19,9 @@ export const createArrayInputControl = <TState extends Array<unknown>>(
 
   const add = (defaultValue?: PartialOrPrimitive<TState[number]>) => {
     if (!inputControl.state.value) {
-      inputControl.state.value = [] as unknown as TState
+      inputControl.state.value = [] as unknown as PartialOrPrimitive<TState>
     }
-    inputControl.state.value?.push(defaultValue)
+    inputControl.state.value?.push(defaultValue as any)
   }
 
   const remove = (index: number) => {
