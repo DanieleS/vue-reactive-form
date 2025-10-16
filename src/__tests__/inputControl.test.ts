@@ -197,6 +197,17 @@ describe("createInputControl", () => {
       expect(control.dirty.value).toBe(true)
     })
 
+    it("should handle state overrides with partial objects, deleting all properties not passed in the new state", () => {
+      const formState = ref({ name: "John", age: 30 })
+      const defaultFormState = ref({ name: "John", age: 30 })
+      const errors = ref({})
+      const control = createInputControl(formState, defaultFormState, errors)
+
+      control.state.value = { name: "Jane" }
+      expect(control.state.value).toEqual({ name: "Jane" })
+      expect(control.dirty.value).toBe(true)
+    })
+
     it("should reset to default value and clear dirty state", () => {
       const formState = ref({ name: "John", age: 30 })
       const defaultFormState = ref({ name: "John", age: 30 })

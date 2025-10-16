@@ -18,13 +18,13 @@ export const useForm = <TState, TValidatedState = TState>(
   const { validationSchema } = options
 
   const defaultFormState = ref(cloneDeep(defaultState)) as Ref<
-    TState | undefined
+    PartialOrPrimitive<TState | undefined>
   >
-  const state = ref(cloneDeep(defaultState)) as Ref<TState>
+  const state = ref(cloneDeep(defaultState)) as Ref<PartialOrPrimitive<TState>>
   const controlsCache = new Map<string, InputControl<unknown>>()
   const errors = ref<FormErrors>({})
 
-  const form = createControlsTree<TState>(
+  const form = createControlsTree<PartialOrPrimitive<TState>>(
     state,
     defaultFormState,
     errors,

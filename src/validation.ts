@@ -1,4 +1,5 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec"
+import type { PartialOrPrimitive } from "./types/utils"
 
 export type ValidationIssue = Omit<StandardSchemaV1.Issue, "path"> & {
   path: readonly (string | number | symbol)[]
@@ -28,7 +29,7 @@ export async function standardValidate<
   T extends StandardSchemaV1<unknown, unknown>
 >(
   schema: T,
-  input: StandardSchemaV1.InferInput<T>
+  input: PartialOrPrimitive<StandardSchemaV1.InferInput<T>>
 ): Promise<ValidationResult<StandardSchemaV1.InferOutput<T>>> {
   const result = await schema["~standard"].validate(input)
 
