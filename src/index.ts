@@ -1,4 +1,4 @@
-import { ref, type Ref } from "@vue/reactivity"
+import { ref, watch, type Ref } from "@vue/reactivity"
 import { cloneDeep, groupBy } from "lodash-es"
 import type {
   FormErrors,
@@ -15,7 +15,7 @@ export const useForm = <TState, TValidatedState = TState>(
   defaultState?: PartialOrPrimitive<TState>,
   options: UseFormOptions<TState, TValidatedState> = {}
 ): FormRoot<TState, TValidatedState> => {
-  const { validationSchema } = options
+  const { validationSchema, validateOn = "change" } = options
 
   const defaultFormState = ref(cloneDeep(defaultState)) as Ref<
     TState | undefined
@@ -59,6 +59,10 @@ export const useForm = <TState, TValidatedState = TState>(
     return async (event?: SubmitEvent) => {
       event?.preventDefault()
 
+      if (validateOn === "manual") {
+        onSuccess?.(state.value as unknown as TValidatedState) // FIXME!!
+      }
+
       const validationResult = await validate()
 
       if (validationResult) {
@@ -68,6 +72,16 @@ export const useForm = <TState, TValidatedState = TState>(
       }
     }
   }
+
+  watch(
+    state,
+    async () => {
+      if (validateOn === "change") {
+        validate()
+      }
+    },
+    { deep: true }
+  )
 
   return {
     form,
