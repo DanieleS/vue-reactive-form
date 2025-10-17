@@ -445,24 +445,6 @@ describe("useForm", () => {
       ).toBe(true)
     })
 
-    it("should not validate on change if validateOn=manual", async () => {
-      const { form, validate, errors } = useForm(
-        { name: "" },
-        { validationSchema: schema, validateOn: "manual" }
-      )
-      // Change the value
-      form.name.$control.state.value = ""
-
-      await new Promise((r) => setTimeout(r)) // flush async updates
-
-      // Should not validate automatically
-      expect(errors.value.name).toBeUndefined()
-
-      // Manual validation
-      await validate()
-      expect(errors.value.name).toBeDefined()
-    })
-
     it("should validate on change if validateOn=change", async () => {
       const { form, errors } = useForm(
         { name: "default value" },

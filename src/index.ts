@@ -59,10 +59,6 @@ export const useForm = <TState, TValidatedState = TState>(
     return async (event?: SubmitEvent) => {
       event?.preventDefault()
 
-      if (validateOn === "manual") {
-        onSuccess?.(state.value as unknown as TValidatedState) // FIXME!!
-      }
-
       const validationResult = await validate()
 
       if (validationResult) {

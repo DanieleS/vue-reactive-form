@@ -7,7 +7,7 @@ import type { Ref } from "@vue/reactivity"
 export type ControlsCache = Map<string, InputControl<unknown>>
 export type FormErrors = Record<string, ValidationIssue[]>
 
-export type ValidateOn = "submit" | "change" | "manual"
+export type ValidateOn = "submit" | "change"
 
 export type UseFormOptions<TState, TValidatedState = TState> = {
   validationSchema?: StandardSchemaV1<TState, TValidatedState>
@@ -16,7 +16,6 @@ export type UseFormOptions<TState, TValidatedState = TState> = {
    *
    * - `submit`: Validate when the form is submitted.
    * - `change`: Validate on every change to the form state.
-   * - `manual`: Only validate when `validate` is called manually.
    *
    * @default "change"
    */
