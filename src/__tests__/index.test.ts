@@ -420,4 +420,69 @@ describe("useForm", () => {
       expect(onError).not.toHaveBeenCalled()
     })
   })
+
+  describe("validateOn option", () => {
+    const schema = yup.object({
+      name: yup.string().required("Name is required")
+    })
+
+    it("should validate on change by default (validateOn=change)", async () => {
+      const { form, errors } = useForm(
+        { name: "default value" },
+        { validationSchema: schema }
+      )
+      // Initially valid (before any change)
+      expect(errors.value.name).toBeUndefined()
+
+      // Change the value to trigger validation
+      form.name.$control.state.value = ""
+
+      await new Promise((r) => setTimeout(r)) // flush async updates
+
+      expect(errors.value.name).toBeDefined()
+      expect(
+        errors.value.name?.some((issue) => issue.message === "Name is required")
+      ).toBe(true)
+    })
+
+    it("should validate on change if validateOn=change", async () => {
+      const { form, errors } = useForm(
+        { name: "default value" },
+        { validationSchema: schema, validateOn: "change" }
+      )
+      form.name.$control.state.value = ""
+
+      await new Promise((r) => setTimeout(r)) // flush async updates
+
+      expect(errors.value.name).toBeDefined()
+    })
+
+    it("should only validate on submit if validateOn=submit", async () => {
+      const { form, errors, handleSubmit } = useForm(
+        { name: "default value" },
+        { validationSchema: schema, validateOn: "submit" }
+      )
+
+      // Change value, should not trigger validation
+      form.name.$control.state.value = ""
+
+      await new Promise((r) => setTimeout(r)) // flush async updates
+
+      expect(errors.value.name).toBeUndefined()
+
+      // Now submit
+      const onSuccess = vi.fn()
+      const onError = vi.fn()
+      const submit = handleSubmit({ onSuccess, onError })
+
+      await submit()
+
+      expect(onSuccess).not.toHaveBeenCalled()
+      expect(onError).toHaveBeenCalled()
+      expect(errors.value.name).toBeDefined()
+      expect(
+        errors.value.name?.some((issue) => issue.message === "Name is required")
+      ).toBe(true)
+    })
+  })
 })
