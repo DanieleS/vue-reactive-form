@@ -1,5 +1,5 @@
 import { ref, watch, type Ref } from "@vue/reactivity"
-import { cloneDeep, groupBy } from "lodash-es"
+import { cloneDeep, debounce, groupBy } from "lodash-es"
 import type {
   FormErrors,
   FormRoot,
@@ -70,7 +70,7 @@ export const useForm = <TState, TValidatedState = TState>(
   }
 
   if (validateOn === "change") {
-    watch(state, validate, { deep: true })
+    watch(state, debounce(validate, 300), { deep: true })
   }
 
   return {
