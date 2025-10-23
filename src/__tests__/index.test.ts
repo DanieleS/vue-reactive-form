@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { useForm } from "../index"
+import * as validationModule from "../validation"
 import * as yup from "yup"
 
 describe("useForm", () => {
@@ -437,12 +438,31 @@ describe("useForm", () => {
       // Change the value to trigger validation
       form.name.$control.state.value = ""
 
-      await new Promise((r) => setTimeout(r)) // flush async updates
+      await vi.waitFor(() => {
+        expect(errors.value.name).toBeDefined()
+        expect(
+          errors.value.name?.some(
+            (issue) => issue.message === "Name is required"
+          )
+        ).toBe(true)
+      })
+    })
 
-      expect(errors.value.name).toBeDefined()
-      expect(
-        errors.value.name?.some((issue) => issue.message === "Name is required")
-      ).toBe(true)
+    it("should debounce validation on change and only execute it once", async () => {
+      vi.spyOn(validationModule, "standardValidate")
+
+      const useFormReturn = useForm(
+        { name: "default value" },
+        { validationSchema: schema, validateOn: "change" }
+      )
+
+      useFormReturn.form.name.$control.state.value = "default"
+      useFormReturn.form.name.$control.state.value = ""
+
+      await vi.waitFor(() => {
+        expect(useFormReturn.errors.value.name).toBeDefined()
+        expect(validationModule.standardValidate).toHaveBeenCalledTimes(1)
+      })
     })
 
     it("should validate on change if validateOn=change", async () => {
@@ -452,9 +472,9 @@ describe("useForm", () => {
       )
       form.name.$control.state.value = ""
 
-      await new Promise((r) => setTimeout(r)) // flush async updates
-
-      expect(errors.value.name).toBeDefined()
+      await vi.waitFor(() => {
+        expect(errors.value.name).toBeDefined()
+      })
     })
 
     it("should only validate on submit if validateOn=submit", async () => {
@@ -466,7 +486,7 @@ describe("useForm", () => {
       // Change value, should not trigger validation
       form.name.$control.state.value = ""
 
-      await new Promise((r) => setTimeout(r)) // flush async updates
+      await new Promise((r) => setTimeout(r, 500)) // flush async updates, wait for debounce time to be flushed as well
 
       expect(errors.value.name).toBeUndefined()
 
