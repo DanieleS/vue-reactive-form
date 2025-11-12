@@ -5,6 +5,10 @@ import type { ValidationIssue } from "../validation"
 import type { Ref } from "@vue/reactivity"
 
 export type ControlsCache = Map<string, InputControl<unknown>>
+/**
+ * Container for all form-wide validation errors.
+ * The errors are stored with paths in dot notation as keys, and the list of issues for the property at such a path as the value.
+ */
 export type FormErrors = Record<string, ValidationIssue[]>
 
 export type ValidateOn = "submit" | "change"
@@ -33,8 +37,23 @@ export type HandleFormSubmit<TValidatedState> = (
 ) => (e?: SubmitEvent) => Promise<void>
 
 export type FormRoot<TState, TValidatedState = TState> = {
+  /**
+   * Entry point to the form tree.
+   * Allows to navigate the state of the form to have access to the form-related metadata for each node.
+   */
   form: FormNode<TState>
+  /**
+   * Object containing all of the validation errors for the form after some validation occurred.
+   */
   errors: Ref<FormErrors>
+  /**
+   * Handler to imperatively invoke the form's validation.
+   * When successful returns the validates tate, otherwise it returns undefined.
+   */
   validate: () => Promise<TValidatedState | undefined>
+  /**
+   * Function to create the formSubmit handler that can be bound or called when the submit takes place.
+   * onSuccess and onError callbacks can be provided as needed to handle follow-ups based on the outcome.
+   */
   handleSubmit: HandleFormSubmit<TValidatedState>
 }

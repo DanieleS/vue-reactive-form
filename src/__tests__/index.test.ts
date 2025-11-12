@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { useForm } from "../index"
-import * as validationModule from "../validation"
+import { useForm } from "../useForm"
 import * as yup from "yup"
 
 describe("useForm", () => {

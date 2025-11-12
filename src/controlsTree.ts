@@ -2,7 +2,7 @@ import type { Ref } from "@vue/reactivity"
 import { createArrayInputControl } from "./arrayInputControl"
 import { get } from "lodash-es"
 import type { InputControl } from "./types/controls"
-import type { ControlsCache, FormErrors } from "./types"
+import type { ControlsCache, FormErrors } from "./types/useForm"
 
 const getInputControl = (
   formState: Ref<unknown>,

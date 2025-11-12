@@ -15,6 +15,10 @@ export type ArrayFormNode<T extends unknown[]> = {
   $control: ArrayInputControl<T>
 }
 
+/**
+ * Represents a node inside a form tree and allows navigation through its children when present,
+ * allowing access to the {@link InputControl} of such nodes.
+ */
 export type FormNode<T> = IsPlainObject<T> extends true
   ? ObjectFormNode<T & object>
   : IsArray<T> extends true
