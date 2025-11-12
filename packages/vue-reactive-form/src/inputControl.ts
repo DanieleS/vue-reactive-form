@@ -67,7 +67,10 @@ export const createInputControl = <TState>(
       return formGet(formState.value, path)
     },
     set(value: TState) {
+      console.log("aaaaaaaaaaaaaa SET STATE", value)
       formSet(formState, path, value)
+
+      console.log("aaaaaaaaaaaaaa AFTER SET STATE", formState.value)
     }
   })
 

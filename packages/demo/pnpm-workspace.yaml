@@ -1,0 +1,2 @@
+overrides:
+  vue-reactive-form: link:../vue-reactive-form
