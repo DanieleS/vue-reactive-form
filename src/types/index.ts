@@ -11,15 +11,6 @@ export type ValidateOn = "submit" | "change"
 
 export type UseFormOptions<TState, TValidatedState = TState> = {
   validationSchema?: StandardSchemaV1<TState, TValidatedState>
-  /**
-   * When to trigger validation.
-   *
-   * - `submit`: Validate when the form is submitted.
-   * - `change`: Validate on every change to the form state.
-   *
-   * @default "change"
-   */
-  validateOn?: ValidateOn
 }
 
 export type HandleSubmitOptions<TValidatedState> = {

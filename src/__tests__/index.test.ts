@@ -427,66 +427,42 @@ describe("useForm", () => {
       name: yup.string().required("Name is required")
     })
 
-    it("should validate on change by default (validateOn=change)", async () => {
-      const { form, errors } = useForm(
+    it("should validate on change by default (validateOn=submit)", async () => {
+      const { form, errors, handleSubmit } = useForm(
         { name: "default value" },
         { validationSchema: schema }
       )
       // Initially valid (before any change)
       expect(errors.value.name).toBeUndefined()
 
-      // Change the value to trigger validation
+      // Change value, should not trigger validation
       form.name.$control.state.value = ""
 
-      await vi.waitFor(() => {
-        expect(errors.value.name).toBeDefined()
-        expect(
-          errors.value.name?.some(
-            (issue) => issue.message === "Name is required"
-          )
-        ).toBe(true)
-      })
-    })
+      expect(errors.value.name).toBeUndefined()
 
-    it("should debounce validation on change and only execute it once", async () => {
-      vi.spyOn(validationModule, "standardValidate")
+      // Now submit
+      const onSuccess = vi.fn()
+      const onError = vi.fn()
+      const submit = handleSubmit({ onSuccess, onError })
 
-      const useFormReturn = useForm(
-        { name: "default value" },
-        { validationSchema: schema, validateOn: "change" }
-      )
+      await submit()
 
-      useFormReturn.form.name.$control.state.value = "default"
-      useFormReturn.form.name.$control.state.value = ""
-
-      await vi.waitFor(() => {
-        expect(useFormReturn.errors.value.name).toBeDefined()
-        expect(validationModule.standardValidate).toHaveBeenCalledTimes(1)
-      })
-    })
-
-    it("should validate on change if validateOn=change", async () => {
-      const { form, errors } = useForm(
-        { name: "default value" },
-        { validationSchema: schema, validateOn: "change" }
-      )
-      form.name.$control.state.value = ""
-
-      await vi.waitFor(() => {
-        expect(errors.value.name).toBeDefined()
-      })
+      expect(onSuccess).not.toHaveBeenCalled()
+      expect(onError).toHaveBeenCalled()
+      expect(errors.value.name).toBeDefined()
+      expect(
+        errors.value.name?.some((issue) => issue.message === "Name is required")
+      ).toBe(true)
     })
 
     it("should only validate on submit if validateOn=submit", async () => {
       const { form, errors, handleSubmit } = useForm(
         { name: "default value" },
-        { validationSchema: schema, validateOn: "submit" }
+        { validationSchema: schema }
       )
 
       // Change value, should not trigger validation
       form.name.$control.state.value = ""
-
-      await new Promise((r) => setTimeout(r, 500)) // flush async updates, wait for debounce time to be flushed as well
 
       expect(errors.value.name).toBeUndefined()
 
