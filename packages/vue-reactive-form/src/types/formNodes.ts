@@ -9,6 +9,10 @@ export type ObjectFormNode<T extends object> = PrimitiveFormNode<T> & {
   [Key in keyof T]: FormNode<T[Key]>
 }
 
+/**
+ * Form node representing an array.
+ * Allows the necessary features for type driven navigation through its children.
+ */
 export type ArrayFormNode<T extends unknown[]> = {
   [index: number]: FormNode<T[number]>
   [Symbol.iterator](): IterableIterator<FormNode<T[number]>>

@@ -6,5 +6,5 @@ export type {
   HandleFormSubmit
 } from "./types/useForm"
 export type { ArrayInputControl, InputControl } from "./types/controls"
-export type { FormNode } from "./types/formNodes"
+export type { FormNode, ArrayFormNode } from "./types/formNodes"
 export { useForm } from "./useForm"
