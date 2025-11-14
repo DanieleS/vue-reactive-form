@@ -2,7 +2,7 @@ import { computed, type Ref } from "@vue/reactivity"
 import { get, isEqual, isObject, set } from "lodash-es"
 import { deepPick } from "./utils"
 import type { InputControl } from "./types/controls"
-import type { FormErrors } from "./types"
+import type { FormErrors } from "./types/useForm"
 import type { PartialOrPrimitive } from "./types/utils"
 
 /**

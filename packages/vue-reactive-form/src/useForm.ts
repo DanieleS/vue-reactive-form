@@ -5,7 +5,7 @@ import type {
   FormRoot,
   HandleSubmitOptions,
   UseFormOptions
-} from "./types"
+} from "./types/useForm"
 import type { PartialOrPrimitive } from "./types/utils"
 import { createControlsTree } from "./controlsTree"
 import { standardValidate } from "./validation"

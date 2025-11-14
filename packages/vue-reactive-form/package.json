@@ -15,6 +15,7 @@
   "packageManager": "pnpm@9.15.9+sha512.68046141893c66fad01c079231128e9afb89ef87e2691d69e4d40eee228988295fd4682181bae55b58418c3a253bde65a505ec7c5f9403ece5cc3cd37dcf2531",
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",
+    "@vue/reactivity": "^3.5.24",
     "ts-toolbelt": "^9.6.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4",
@@ -22,7 +23,9 @@
   },
   "dependencies": {
     "@standard-schema/spec": "^1.0.0",
-    "@vue/reactivity": "^3.5.21",
     "lodash-es": "^4.17.21"
+  },
+  "peerDependencies": {
+    "@vue/reactivity": "^3.4.0"
   }
 }
