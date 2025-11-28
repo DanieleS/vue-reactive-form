@@ -10,7 +10,7 @@ export type FormErrors = Record<string, ValidationIssue[]>
 export type ValidateOn = "submit" | "change"
 
 export type UseFormOptions<TState, TValidatedState = TState> = {
-  validationSchema?: StandardSchemaV1<TState, TValidatedState>
+  validationSchema: StandardSchemaV1<TState, TValidatedState>
 }
 
 export type HandleSubmitOptions<TValidatedState> = {
