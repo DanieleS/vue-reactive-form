@@ -2,29 +2,25 @@
 import { useForm } from "vue-reactive-form"
 import LabeledInput from "./components/LabeledInput.vue"
 import ArrayInput from "./components/ArrayInput.vue"
+import {
+  projectFormSchema,
+  type ProjectFormState,
+  type ValidProjectFormState
+} from "./demo-form"
 
-type Tag = "infrastructure" | "frontend" | "backend" | "full-stack"
+const { form, errors, handleSubmit } = useForm<
+  ProjectFormState,
+  ValidProjectFormState
+>({}, { validationSchema: projectFormSchema })
 
-type ProjectFormState = {
-  name: string
-  description: string
-  budget: number
-  isPublic: true
-  client: {
-    name: string
-    address: {
-      street: string
-      city: string
-    }
+const onSubmit = handleSubmit({
+  onSuccess: (state) => {
+    alert("Form submitted with state:\n" + JSON.stringify(state, null, 2))
+  },
+  onError: (errors) => {
+    console.log("Form submission failed with errors:", errors)
   }
-  teamMembers: {
-    name: string
-    hourlyRate: number
-  }[]
-  tags: Tag[]
-}
-
-const { form, errors } = useForm<ProjectFormState>({})
+})
 </script>
 
 <template>
@@ -131,6 +127,8 @@ const { form, errors } = useForm<ProjectFormState>({})
           />
         </template>
       </ArrayInput>
+
+      <button @click="onSubmit">Submit</button>
     </form>
 
     <div>

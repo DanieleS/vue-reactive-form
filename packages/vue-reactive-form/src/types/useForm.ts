@@ -34,14 +34,14 @@ export type HandleSubmitOptions<TValidatedState> = {
 
 export type HandleFormSubmit<TValidatedState> = (
   opts?: HandleSubmitOptions<TValidatedState>
-) => (e?: SubmitEvent) => Promise<void>
+) => (e?: Event) => Promise<void>
 
 export type FormRoot<TState, TValidatedState = TState> = {
   /**
    * Entry point to the form tree.
    * Allows to navigate the state of the form to have access to the form-related metadata for each node.
    */
-  form: FormNode<TState>
+  form: FormNode<TValidatedState>
   /**
    * Object containing all of the validation errors for the form after some validation occurred.
    */
