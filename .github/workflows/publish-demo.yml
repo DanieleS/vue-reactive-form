@@ -10,10 +10,6 @@ permissions:
   pages: write
   id-token: write
 
-concurrently:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
   build:
     runs-on: ubuntu-latest
