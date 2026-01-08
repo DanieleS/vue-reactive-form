@@ -25,7 +25,7 @@ const onSubmit = handleSubmit({
 
 <template>
   <div class="container">
-    <h1 class="title">Vue reactive form demo</h1>
+    <h1 class="title">vue-reactive-form demo</h1>
 
     <div class="layout">
       <div class="card form-card">
@@ -157,44 +157,50 @@ const onSubmit = handleSubmit({
 
 <style>
 :root {
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --bg: #f3f4f6;
-  --surface: #ffffff;
-  --text: #1f2937;
-  --border: #e5e7eb;
+  --b-bg: #f3f4f6;
+  --b-surface: #ffffff;
+  --b-text: #111827;
+  --b-border: #e5e7eb;
+  --b-accent: #0f172a;
+  --b-highlight: #f59e0b;
+  --b-font-ui: "Inter", system-ui, sans-serif;
+  --b-font-mono: "Roboto Mono", monospace;
 }
 
 body {
-  font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    sans-serif;
-  background-color: var(--bg);
-  color: var(--text);
+  font-family: var(--b-font-ui);
+  background-color: var(--b-bg);
+  color: var(--b-text);
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  font-size: 0.8125rem; /* Smaller base font */
 }
 
 .container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.5rem; /* Reduced padding */
 }
 
 .title {
-  text-align: center;
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-  color: #111827;
+  font-family: var(--b-font-ui);
+  text-align: left;
+  font-size: 1.25rem; /* Smaller title */
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  color: var(--b-accent);
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  border-bottom: 3px solid var(--b-accent);
+  padding-bottom: 0.375rem;
+  display: inline-block;
 }
 
 .layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 1.5rem; /* Reduced gap */
   align-items: start;
 }
 
@@ -205,59 +211,93 @@ body {
 }
 
 .card {
-  background: var(--surface);
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -1px rgb(0 0 0 / 0.06);
-  border: 1px solid var(--border);
+  background: var(--b-surface);
+  border: 1px solid var(--b-border);
+  padding: 1.5rem; /* Reduced padding */
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
 .form-layout {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem; /* Tighter form elements */
 }
 
 .section-title {
   margin-top: 0;
-  font-size: 1.25rem;
+  font-family: var(--b-font-mono);
+  font-size: 0.75rem;
   font-weight: 600;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.75rem;
-  margin-bottom: 1.5rem;
-  color: #111827;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title::before {
+  content: "//";
+  color: var(--b-highlight);
 }
 
 .checkbox-wrapper {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  margin-top: 0.25rem;
 }
 
 .checkbox-label {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   font-weight: 500;
   cursor: pointer;
+  font-family: var(--b-font-ui);
 }
 
 .checkbox-label input {
-  width: 1.125rem;
-  height: 1.125rem;
-  border-radius: 4px;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--b-border);
+  border-radius: 0;
+  background: white;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+  position: relative;
+}
+
+.checkbox-label input:checked {
+  background: var(--b-accent);
+  border-color: var(--b-accent);
+}
+
+.checkbox-label input:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 3px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 
 .submit-btn {
-  background-color: var(--primary);
+  background-color: var(--b-accent);
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
+  padding: 0.625rem 1.25rem; /* Smaller padding */
+  border-radius: 0;
+  font-family: var(--b-font-mono);
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   cursor: pointer;
   transition: all 0.2s;
   margin-top: 1rem;
@@ -265,36 +305,44 @@ body {
 }
 
 .submit-btn:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
+  background-color: #1f2937;
+}
+
+.submit-btn:focus {
+  outline: 2px solid var(--b-highlight);
+  outline-offset: 2px;
 }
 
 .inspector-section + .inspector-section {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--b-border);
 }
 
 .inspector-section pre {
-  background-color: #f8fafc;
-  padding: 1.25rem;
-  border-radius: 8px;
-  overflow-x: auto;
-  font-size: 0.875rem;
-  font-family: "Menlo", "Monaco", "Courier New", monospace;
-  border: 1px solid var(--border);
+  background-color: #f9fafb;
+  padding: 0.75rem;
+  font-size: 0.7rem; /* Smaller monospace */
+  font-family: var(--b-font-mono);
+  border: 1px solid var(--b-border);
   margin: 0;
   white-space: pre-wrap;
+  color: var(--b-text);
+  line-height: 1.3;
 }
 
 .error-message {
   color: #ef4444;
-  font-size: 0.875rem;
+  font-family: var(--b-font-mono);
+  font-size: 0.7rem;
+  margin-top: 0.25rem;
 }
 
 /* Helpers for ArrayInput slots */
 .grid-col-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 0.75rem;
   flex: 1;
 }
 
