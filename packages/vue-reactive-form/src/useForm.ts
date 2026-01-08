@@ -5,7 +5,7 @@ import type {
   FormRoot,
   HandleSubmitOptions,
   UseFormOptions
-} from "./types"
+} from "./types/useForm"
 import type { PartialOrPrimitive } from "./types/utils"
 import { createControlsTree } from "./controlsTree"
 import { standardValidate } from "./validation"
@@ -56,7 +56,7 @@ export const useForm = <TState, TValidatedState = TState>(
   const handleSubmit = (options: HandleSubmitOptions<TValidatedState> = {}) => {
     const { onSuccess, onError } = options
 
-    return async (event?: SubmitEvent) => {
+    return async (event?: Event) => {
       event?.preventDefault()
 
       const validationResult = await validate()
