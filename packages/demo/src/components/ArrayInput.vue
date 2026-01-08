@@ -4,6 +4,7 @@ import type { ArrayFormNode } from "vue-reactive-form"
 type Props<T extends any[]> = {
   label: string
   node: ArrayFormNode<T>
+  error?: string
 }
 
 defineProps<Props<TComponentGeneric>>()
@@ -20,6 +21,10 @@ defineProps<Props<TComponentGeneric>>()
       >
         Add item
       </button>
+    </div>
+
+    <div v-if="error" style="color: red">
+      {{ error }}
     </div>
 
     <div v-for="(childNode, index) in node" style="display: flex" :key="index">
