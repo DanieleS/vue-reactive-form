@@ -16,11 +16,11 @@ Check out the [live demo](https://danieles.github.io/vue-reactive-form/) for a h
 ## Installation
 
 ```bash
-npm install vue-reactive-form
+npm install @vue-reactive-form/core
 # or
-pnpm add vue-reactive-form
+pnpm add @vue-reactive-form/core
 # or
-yarn add vue-reactive-form
+yarn add @vue-reactive-form/core
 ```
 
 ## Basic Usage
@@ -131,10 +131,10 @@ const onSubmit = handleSubmit({
 </template>
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Feel free to open an issue or submit a pull request if you have ideas for improvements or find any bugs.
 
-## 📄 License
+## License
 
-MIT License — see the [LICENSE](./LICENSE) file for details.
+The package is published under the MIT license.

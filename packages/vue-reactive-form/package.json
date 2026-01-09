@@ -1,17 +1,24 @@
 {
-  "name": "vue-reactive-form",
-  "version": "1.0.0",
+  "name": "@vue-reactive-form/core",
+  "version": "1.0.2",
   "description": "",
-  "main": "dist/index.js",
   "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "test": "vitest",
     "dev": "tsc --watch",
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "cp ../../README.md ./README.md"
   },
   "keywords": [],
-  "author": "",
-  "license": "MTI",
+  "author": "Davide Specchia, Tommaso Gangemi",
+  "license": "MIT",
   "packageManager": "pnpm@9.15.9+sha512.68046141893c66fad01c079231128e9afb89ef87e2691d69e4d40eee228988295fd4682181bae55b58418c3a253bde65a505ec7c5f9403ece5cc3cd37dcf2531",
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",

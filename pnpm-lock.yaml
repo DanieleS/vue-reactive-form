@@ -8,12 +8,12 @@ importers:
 
   packages/demo:
     dependencies:
+      '@vue-reactive-form/core':
+        specifier: workspace:*
+        version: link:../vue-reactive-form
       vue:
         specifier: ^3.5.22
         version: 3.5.24(typescript@5.9.3)
-      vue-reactive-form:
-        specifier: workspace:*
-        version: link:../vue-reactive-form
       vue-router:
         specifier: ^4.6.3
         version: 4.6.3(vue@3.5.24(typescript@5.9.3))
