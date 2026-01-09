@@ -16,11 +16,11 @@ Check out the [live demo](https://danieles.github.io/vue-reactive-form/) for a h
 ## Installation
 
 ```bash
-npm install vue-reactive-form
+npm install @vue-reactive-form/core
 # or
-pnpm add vue-reactive-form
+pnpm add @vue-reactive-form/core
 # or
-yarn add vue-reactive-form
+yarn add @vue-reactive-form/core
 ```
 
 ## Basic Usage
