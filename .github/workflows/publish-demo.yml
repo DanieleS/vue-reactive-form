@@ -26,13 +26,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install
 
       - name: Build vue-reactive-form
-        run: pnpm --filter vue-reactive-form build
+        run: pnpm --filter @vue-reactive-form/core build
 
       - name: Build demo
         run: pnpm --filter demo build
@@ -43,7 +43,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './packages/demo/dist'
+          path: "./packages/demo/dist"
 
   deploy:
     environment:
