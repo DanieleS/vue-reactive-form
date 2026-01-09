@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "vue": "^3.5.22",
-    "vue-reactive-form": "workspace:*",
+    "@vue-reactive-form/core": "workspace:*",
     "vue-router": "^4.6.3",
     "yup": "^1.7.1"
   },

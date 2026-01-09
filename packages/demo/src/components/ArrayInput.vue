@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="TComponentGeneric extends any[]">
-import type { ArrayFormNode } from "vue-reactive-form"
+import type { ArrayFormNode } from "@vue-reactive-form/core"
 
 type Props<T extends any[]> = {
   label: string
