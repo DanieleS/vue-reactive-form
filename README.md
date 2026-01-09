@@ -131,10 +131,10 @@ const onSubmit = handleSubmit({
 </template>
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Feel free to open an issue or submit a pull request if you have ideas for improvements or find any bugs.
 
-## 📄 License
+## License
 
-MIT License — see the [LICENSE](./LICENSE) file for details.
+The package is published under the MIT license.
