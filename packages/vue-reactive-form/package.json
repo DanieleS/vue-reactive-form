@@ -1,18 +1,20 @@
 {
   "name": "@vue-reactive-form/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "type": "module",
   "exports": {
     ".": "./dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "test": "vitest",
     "dev": "tsc --watch",
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "cp ../../README.md ./README.md"
   },
   "keywords": [],
   "author": "",
