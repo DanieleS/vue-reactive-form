@@ -25,3 +25,7 @@ export type IsArray<T> = T extends unknown[] ? true : false
 export type PartialOrPrimitive<T> = T extends object
   ? Object.Partial<T, "deep">
   : T
+
+export type RequiredOrPrimitive<T> = T extends object
+  ? Object.Required<T, keyof T, "deep">
+  : T

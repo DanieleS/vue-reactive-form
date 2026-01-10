@@ -37,7 +37,7 @@ export type ValidProjectFormState = {
     name: string
     hourlyRate: number
   }[]
-  tags: Tag[]
+  tags?: Tag[]
 }
 
 export const projectFormSchema: Schema<ValidProjectFormState> = object({

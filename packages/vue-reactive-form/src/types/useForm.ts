@@ -3,6 +3,8 @@ import type { FormNode } from "./formNodes"
 import type { InputControl } from "./controls"
 import type { ValidationIssue } from "../validation"
 import type { Ref } from "@vue/reactivity"
+import type { Required } from "ts-toolbelt/out/Object/Required"
+import type { RequiredOrPrimitive } from "./utils"
 
 export type ControlsCache = Map<string, InputControl<unknown>>
 /**
@@ -40,8 +42,9 @@ export type FormRoot<TState, TValidatedState = TState> = {
   /**
    * Entry point to the form tree.
    * Allows to navigate the state of the form to have access to the form-related metadata for each node.
+   * The form state is passed as a deeply required object to ensure that navigation is possible up to every node.
    */
-  form: FormNode<TValidatedState>
+  form: FormNode<RequiredOrPrimitive<TState>>
   /**
    * Object containing all of the validation errors for the form after some validation occurred.
    */
