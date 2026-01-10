@@ -44,7 +44,7 @@ export type FormRoot<TState, TValidatedState = TState> = {
    * Allows to navigate the state of the form to have access to the form-related metadata for each node.
    * The form state is passed as a deeply required object to ensure that navigation is possible up to every node.
    */
-  form: FormNode<RequiredOrPrimitive<TState>>
+  form: FormNode<RequiredOrPrimitive<TState> & object>
   /**
    * Object containing all of the validation errors for the form after some validation occurred.
    */

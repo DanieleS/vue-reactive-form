@@ -8,16 +8,11 @@ export interface NotPlainTypes {
 
 type NotPlain = NotPlainTypes["types"]
 
-// Union of the members of T that are considered plain objects
-type PlainMembers<T> = T extends object
-  ? T extends NotPlain
-    ? never
-    : T
-  : never
-
 // True if every member of T is a plain object
-export type IsPlainObject<T> = [Exclude<T, PlainMembers<T>>] extends [never]
-  ? true
+export type IsPlainObject<T> = T extends object
+  ? T extends NotPlain
+    ? false
+    : true
   : false
 
 export type IsArray<T> = T extends unknown[] ? true : false
