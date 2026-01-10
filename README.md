@@ -4,7 +4,7 @@
 
 🚀 **Get started in minutes** — no boilerplate, no learning curve. Just reactive forms that work.
 
-Check out the [live demo](https://danieles.github.io/vue-reactive-form/) for a hands-on example of how to use `vue-reactive-form`.
+Check out the [live demo](https://vue-reactive-form.github.io/core/) for a hands-on example of how to use `vue-reactive-form`.
 
 ## Features
 
