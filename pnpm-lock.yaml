@@ -60,6 +60,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
+      ts-toolbelt:
+        specifier: ^9.6.0
+        version: 9.6.0
     devDependencies:
       '@types/lodash-es':
         specifier: ^4.17.12
@@ -67,9 +70,6 @@ importers:
       '@vue/reactivity':
         specifier: ^3.5.24
         version: 3.5.24
-      ts-toolbelt:
-        specifier: ^9.6.0
-        version: 9.6.0
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
