@@ -15,9 +15,9 @@ export type InputControl<T> = {
    */
   isValid: ComputedRef<boolean>
   /**
-   * Error message from the validation outcome.
+   * Error messages from the validation outcome.
    */
-  errorMessage: ComputedRef<string | undefined>
+  errorMessages: ComputedRef<string[]>
   /**
    * Sets the state to undefined.
    */

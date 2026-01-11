@@ -43,9 +43,9 @@ export const createInputControl = <TState>(
     return issues.length === 0
   })
 
-  const errorMessage = computed<string | undefined>(() => {
+  const errorMessages = computed<string[]>(() => {
     const issues = getFieldErrors(path)
-    return issues[0]?.message
+    return issues.map((issue) => issue.message)
   })
 
   const clear = () => {
@@ -63,7 +63,7 @@ export const createInputControl = <TState>(
     state,
     dirty,
     isValid,
-    errorMessage,
+    errorMessages,
     clear,
     reset,
     updateDefaultState

@@ -93,7 +93,7 @@ describe("createInputControl", () => {
         const control = createInputControl(context)
 
         expect(control.isValid.value).toBe(true)
-        expect(control.errorMessage.value).toBe(undefined)
+        expect(control.errorMessages.value).toEqual([])
       })
 
       it("should report isValid as false when there are errors", () => {
@@ -112,7 +112,10 @@ describe("createInputControl", () => {
         const control = createInputControl(context)
 
         expect(control.isValid.value).toBe(false)
-        expect(control.errorMessage.value).toBe("Value is required")
+        expect(control.errorMessages.value).toEqual([
+          "Value is required",
+          "Value must be at least 3 characters"
+        ])
       })
 
       it("should react to changes in the errors state", () => {
@@ -121,7 +124,7 @@ describe("createInputControl", () => {
         const control = createInputControl(context)
 
         expect(control.isValid.value).toBe(true)
-        expect(control.errorMessage.value).toBe(undefined)
+        expect(control.errorMessages.value).toEqual([])
 
         // Add errors - for root level control, errors are stored with empty string key
         errors.value = {
@@ -129,13 +132,13 @@ describe("createInputControl", () => {
         }
 
         expect(control.isValid.value).toBe(false)
-        expect(control.errorMessage.value).toBe("This field is invalid")
+        expect(control.errorMessages.value).toEqual(["This field is invalid"])
 
         // Clear errors
         errors.value = {}
 
         expect(control.isValid.value).toBe(true)
-        expect(control.errorMessage.value).toBe(undefined)
+        expect(control.errorMessages.value).toEqual([])
       })
 
       it("should clear error messages when updating the state", () => {
@@ -146,12 +149,12 @@ describe("createInputControl", () => {
         setFieldErrors([], [{ message: "Some error", path: [] }])
 
         expect(control.isValid.value).toBe(false)
-        expect(control.errorMessage.value).toBe("Some error")
+        expect(control.errorMessages.value).toEqual(["Some error"])
 
         control.state.value = "new value"
 
         expect(control.isValid.value).toBe(true)
-        expect(control.errorMessage.value).toBe(undefined)
+        expect(control.errorMessages.value).toEqual([])
       })
 
       it("should handle empty errors object gracefully", () => {
@@ -160,7 +163,7 @@ describe("createInputControl", () => {
         const control = createInputControl(context)
 
         expect(control.isValid.value).toBe(true)
-        expect(control.errorMessage.value).toBe(undefined)
+        expect(control.errorMessages.value).toEqual([])
       })
 
       it("should handle empty error arrays", () => {
@@ -170,7 +173,7 @@ describe("createInputControl", () => {
         const control = createInputControl(context)
 
         expect(control.isValid.value).toBe(true)
-        expect(control.errorMessage.value).toBe(undefined)
+        expect(control.errorMessages.value).toEqual([])
       })
     })
   })
@@ -318,12 +321,12 @@ describe("createInputControl", () => {
         const nameControl = createInputControl(context, ["name"])
 
         expect(nameControl.isValid.value).toBe(false)
-        expect(nameControl.errorMessage.value).toBe("Name is required")
+        expect(nameControl.errorMessages.value).toEqual(["Name is required"])
 
         // Age field should be valid since it has no errors
         const ageControl = createInputControl(context, ["age"])
         expect(ageControl.isValid.value).toBe(true)
-        expect(ageControl.errorMessage.value).toBe(undefined)
+        expect(ageControl.errorMessages.value).toEqual([])
       })
 
       it("should handle deeply nested field validation", () => {
@@ -354,7 +357,9 @@ describe("createInputControl", () => {
         ])
 
         expect(emailControl.isValid.value).toBe(false)
-        expect(emailControl.errorMessage.value).toBe("Invalid email format")
+        expect(emailControl.errorMessages.value).toEqual([
+          "Invalid email format"
+        ])
 
         // Name field should be valid
         const nameControl = createInputControl(context, [
@@ -363,16 +368,15 @@ describe("createInputControl", () => {
           "name"
         ])
         expect(nameControl.isValid.value).toBe(true)
-        expect(nameControl.errorMessage.value).toBe(undefined)
+        expect(nameControl.errorMessages.value).toEqual([])
       })
 
       it("should react to changes in nested errors", () => {
         const context = useFormContext({ user: { name: "John" } })
         const { errors } = context
         const nameControl = createInputControl(context, ["user", "name"])
-
         expect(nameControl.isValid.value).toBe(true)
-        expect(nameControl.errorMessage.value).toBe(undefined)
+        expect(nameControl.errorMessages.value).toEqual([])
 
         // Add error for nested field
         errors.value = {
@@ -386,13 +390,13 @@ describe("createInputControl", () => {
         }
 
         expect(nameControl.isValid.value).toBe(false)
-        expect(nameControl.errorMessage.value).toBe("Name must be longer")
+        expect(nameControl.errorMessages.value).toEqual(["Name must be longer"])
 
         // Clear errors
         errors.value = {}
 
         expect(nameControl.isValid.value).toBe(true)
-        expect(nameControl.errorMessage.value).toBe(undefined)
+        expect(nameControl.errorMessages.value).toEqual([])
       })
     })
   })
@@ -576,14 +580,14 @@ describe("createInputControl", () => {
         // First item should be valid
         const firstItemControl = createInputControl(context, [0])
         expect(firstItemControl.isValid.value).toBe(true)
-        expect(firstItemControl.errorMessage.value).toBe(undefined)
+        expect(firstItemControl.errorMessages.value).toEqual([])
 
         // Second item should be invalid
         const secondItemControl = createInputControl(context, [1])
         expect(secondItemControl.isValid.value).toBe(false)
-        expect(secondItemControl.errorMessage.value).toBe(
+        expect(secondItemControl.errorMessages.value).toEqual([
           "Item at index 1 is invalid"
-        )
+        ])
       })
 
       it("should handle validation for nested objects in arrays", () => {
@@ -612,21 +616,21 @@ describe("createInputControl", () => {
         // First item's name should be invalid
         const firstNameControl = createInputControl(context, [0, "name"])
         expect(firstNameControl.isValid.value).toBe(false)
-        expect(firstNameControl.errorMessage.value).toBe(
+        expect(firstNameControl.errorMessages.value).toEqual([
           "Name at index 0 is required"
-        )
+        ])
 
         // First item's age should be valid
         const firstAgeControl = createInputControl(context, [0, "age"])
         expect(firstAgeControl.isValid.value).toBe(true)
-        expect(firstAgeControl.errorMessage.value).toBe(undefined)
+        expect(firstAgeControl.errorMessages.value).toEqual([])
 
         // Second item's age should be invalid
         const secondAgeControl = createInputControl(context, [1, "age"])
         expect(secondAgeControl.isValid.value).toBe(false)
-        expect(secondAgeControl.errorMessage.value).toBe(
+        expect(secondAgeControl.errorMessages.value).toEqual([
           "Age at index 1 must be positive"
-        )
+        ])
       })
 
       it("should react to changes in array item errors", () => {
@@ -635,7 +639,7 @@ describe("createInputControl", () => {
         const middleItemControl = createInputControl(context, [1])
 
         expect(middleItemControl.isValid.value).toBe(true)
-        expect(middleItemControl.errorMessage.value).toBe(undefined)
+        expect(middleItemControl.errorMessages.value).toEqual([])
 
         // Add error for middle item
         errors.value = {
@@ -643,15 +647,15 @@ describe("createInputControl", () => {
         }
 
         expect(middleItemControl.isValid.value).toBe(false)
-        expect(middleItemControl.errorMessage.value).toBe(
+        expect(middleItemControl.errorMessages.value).toEqual([
           "Middle item is invalid"
-        )
+        ])
 
         // Clear errors
         errors.value = {}
 
         expect(middleItemControl.isValid.value).toBe(true)
-        expect(middleItemControl.errorMessage.value).toBe(undefined)
+        expect(middleItemControl.errorMessages.value).toEqual([])
       })
 
       it("should handle multiple errors on the same array item", () => {
@@ -674,7 +678,10 @@ describe("createInputControl", () => {
 
         const nameControl = createInputControl(context, [0, "name"])
         expect(nameControl.isValid.value).toBe(false)
-        expect(nameControl.errorMessage.value).toBe("Name is required") // Should return first error
+        expect(nameControl.errorMessages.value).toEqual([
+          "Name is required",
+          "Name must be at least 2 characters"
+        ])
       })
     })
   })
