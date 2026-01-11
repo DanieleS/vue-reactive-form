@@ -138,6 +138,22 @@ describe("createInputControl", () => {
         expect(control.errorMessage.value).toBe(undefined)
       })
 
+      it("should clear error messages when updating the state", () => {
+        const context = useFormContext("some value")
+        const { setFieldErrors } = context
+        const control = createInputControl(context)
+
+        setFieldErrors([], [{ message: "Some error", path: [] }])
+
+        expect(control.isValid.value).toBe(false)
+        expect(control.errorMessage.value).toBe("Some error")
+
+        control.state.value = "new value"
+
+        expect(control.isValid.value).toBe(true)
+        expect(control.errorMessage.value).toBe(undefined)
+      })
+
       it("should handle empty errors object gracefully", () => {
         const context = useFormContext("some value")
 

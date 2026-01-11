@@ -62,5 +62,5 @@ export const projectFormSchema: Schema<ValidProjectFormState> = object({
     string()
       .oneOf(["infrastructure", "frontend", "backend", "full-stack"])
       .required()
-  ).required()
+  )
 })

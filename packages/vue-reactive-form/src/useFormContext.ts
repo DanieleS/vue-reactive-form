@@ -2,6 +2,11 @@ import { ref, type Ref } from "@vue/reactivity"
 import type { ControlsCache, FormContext, FormErrors } from "./types/useForm"
 import type { PartialOrPrimitive } from "./types/utils"
 import { cloneDeep, get, set, type PropertyPath } from "lodash-es"
+import type { ValidationIssue } from "./validation"
+
+const getValidationIssuesPath = (path: PropertyPath) => {
+  return Array.isArray(path) && path.length ? path.join(".") : ""
+}
 
 export const useFormContext = <TState>(
   defaultState?: PartialOrPrimitive<TState>
@@ -25,6 +30,12 @@ export const useFormContext = <TState>(
     } else {
       toBeUpdated.value = value
     }
+
+    // When updating the state of the field, we clear any validation issues,
+    // so they don't persist until the next validation is performed
+    if (stateType === "current") {
+      setFieldErrors(path, [])
+    }
   }
 
   const getFieldState = (
@@ -39,10 +50,11 @@ export const useFormContext = <TState>(
   }
 
   const getFieldErrors = (path: PropertyPath) => {
-    return (
-      errors.value[Array.isArray(path) && path.length ? path.join(".") : ""] ??
-      []
-    )
+    return errors.value[getValidationIssuesPath(path)] ?? []
+  }
+
+  const setFieldErrors = (path: PropertyPath, issues: ValidationIssue[]) => {
+    errors.value[getValidationIssuesPath(path)] = issues
   }
 
   return {
@@ -52,6 +64,7 @@ export const useFormContext = <TState>(
     controlsCache,
     setFieldState,
     getFieldState,
-    getFieldErrors
+    getFieldErrors,
+    setFieldErrors
   }
 }

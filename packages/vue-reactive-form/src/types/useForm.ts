@@ -53,6 +53,13 @@ export type FormContext<TState> = {
    * @returns The list of validation issues for the field.
    */
   getFieldErrors: (path: PropertyPath) => ValidationIssue[]
+  /**
+   * Sets the validation errors for a specific field in the form.
+   *
+   * @param path The path to the field, using dot notation.
+   * @param errors The list of validation issues for the field.
+   */
+  setFieldErrors: (path: PropertyPath, errors: ValidationIssue[]) => void
 }
 
 export type ValidateOn = "submit" | "change"
