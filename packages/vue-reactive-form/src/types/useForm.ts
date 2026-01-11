@@ -13,6 +13,21 @@ export type ControlsCache = Map<string, InputControl<unknown>>
  */
 export type FormErrors = Record<string, ValidationIssue[]>
 
+/**
+ * Internal context shared across the form's control tree.
+ * Contains all the core reactive state needed by form controls.
+ */
+export type FormContext<TState> = {
+  /** The current form state */
+  state: Ref<TState>
+  /** The default/initial form state, used for dirty checking and reset */
+  defaultFormState: Ref<TState | undefined>
+  /** Form-wide validation errors keyed by path */
+  errors: Ref<FormErrors>
+  /** Cache of input controls to avoid re-creating them */
+  controlsCache: ControlsCache
+}
+
 export type ValidateOn = "submit" | "change"
 
 export type UseFormOptions<TState, TValidatedState = TState> = {

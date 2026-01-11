@@ -1,21 +1,13 @@
-import type { Ref } from "@vue/reactivity"
 import { createInputControl } from "./inputControl"
 import type { PartialOrPrimitive } from "./types/utils"
 import type { ArrayInputControl } from "./types/controls"
-import type { FormErrors } from "./types/useForm"
+import type { FormContext } from "./types/useForm"
 
 export const createArrayInputControl = <TState extends Array<unknown>>(
-  formState: Ref<unknown>,
-  defaultFormState: Ref<unknown>,
-  formErrors: Ref<FormErrors>,
+  context: FormContext<unknown>,
   path: (string | number | symbol)[] = []
 ): ArrayInputControl<TState> => {
-  const inputControl = createInputControl<TState>(
-    formState,
-    defaultFormState,
-    formErrors,
-    path
-  )
+  const inputControl = createInputControl<TState>(context, path)
 
   const add = (defaultValue?: PartialOrPrimitive<TState[number]>) => {
     if (!inputControl.state.value) {

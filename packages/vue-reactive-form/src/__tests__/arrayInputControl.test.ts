@@ -8,11 +8,13 @@ describe("createArrayInputControl", () => {
       const formState = ref([1, 2, 3])
       const defaultFormState = ref([1, 2, 3])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.add(4)
       expect(control.state.value).toEqual([1, 2, 3, 4])
@@ -23,11 +25,13 @@ describe("createArrayInputControl", () => {
       const formState = ref([1, 2, 3])
       const defaultFormState = ref([1, 2, 3])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.add()
       expect(control.state.value).toEqual([1, 2, 3, undefined])
@@ -38,11 +42,13 @@ describe("createArrayInputControl", () => {
       const formState = ref([{ name: "John" }, { name: "Jane" }])
       const defaultFormState = ref([{ name: "John" }, { name: "Jane" }])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.add({ name: "Bob" })
       expect(control.state.value).toEqual([
@@ -57,11 +63,13 @@ describe("createArrayInputControl", () => {
       const formState = ref([{ name: "John" }, { name: "Jane" }])
       const defaultFormState = ref([{ name: "John" }, { name: "Jane" }])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.add({})
       expect(control.state.value).toEqual([
@@ -76,11 +84,13 @@ describe("createArrayInputControl", () => {
       const formState = ref([])
       const defaultFormState = ref([])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.add("first item")
       expect(control.state.value).toEqual(["first item"])
@@ -91,11 +101,13 @@ describe("createArrayInputControl", () => {
       const formState = ref(undefined)
       const defaultFormState = ref([])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.add("item")
       expect(control.state.value).toEqual(["item"])
@@ -107,11 +119,13 @@ describe("createArrayInputControl", () => {
       const formState = ref([1, 2, 3, 4])
       const defaultFormState = ref([1, 2, 3, 4])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.remove(1) // Remove element at index 1 (value 2)
       expect(control.state.value).toEqual([1, 3, 4])
@@ -122,11 +136,13 @@ describe("createArrayInputControl", () => {
       const formState = ref(["a", "b", "c"])
       const defaultFormState = ref(["a", "b", "c"])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.remove(0)
       expect(control.state.value).toEqual(["b", "c"])
@@ -137,11 +153,13 @@ describe("createArrayInputControl", () => {
       const formState = ref(["a", "b", "c"])
       const defaultFormState = ref(["a", "b", "c"])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.remove(2)
       expect(control.state.value).toEqual(["a", "b"])
@@ -160,11 +178,13 @@ describe("createArrayInputControl", () => {
         { id: 3, name: "Bob" }
       ])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.remove(1) // Remove Jane
       expect(control.state.value).toEqual([
@@ -178,11 +198,13 @@ describe("createArrayInputControl", () => {
       const formState = ref(["only item"])
       const defaultFormState = ref(["only item"])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.remove(0)
       expect(control.state.value).toEqual([])
@@ -193,11 +215,13 @@ describe("createArrayInputControl", () => {
       const formState = ref(undefined)
       const defaultFormState = ref([])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       // Should not throw an error
       control.remove(0)
@@ -210,11 +234,13 @@ describe("createArrayInputControl", () => {
       const formState = ref(["a", "b", "c", "d"])
       const defaultFormState = ref(["a", "b", "c", "d"])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.moveItem(0, 2) // Move "a" from index 0 to index 2
       expect(control.state.value).toEqual(["b", "c", "a", "d"])
@@ -225,11 +251,13 @@ describe("createArrayInputControl", () => {
       const formState = ref([1, 2, 3, 4, 5])
       const defaultFormState = ref([1, 2, 3, 4, 5])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.moveItem(1, 3) // Move element at index 1 to index 3
       expect(control.state.value).toEqual([1, 3, 4, 2, 5])
@@ -240,11 +268,13 @@ describe("createArrayInputControl", () => {
       const formState = ref([1, 2, 3, 4, 5])
       const defaultFormState = ref([1, 2, 3, 4, 5])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.moveItem(3, 1) // Move element at index 3 to index 1
       expect(control.state.value).toEqual([1, 4, 2, 3, 5])
@@ -255,11 +285,13 @@ describe("createArrayInputControl", () => {
       const formState = ref(["a", "b", "c"])
       const defaultFormState = ref(["a", "b", "c"])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.moveItem(1, 1) // Move item at index 1 to index 1
       expect(control.state.value).toEqual(["a", "b", "c"])
@@ -278,11 +310,13 @@ describe("createArrayInputControl", () => {
         { id: 3, name: "Bob" }
       ])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.moveItem(0, 2) // Move John from first to last position
       expect(control.state.value).toEqual([
@@ -297,11 +331,13 @@ describe("createArrayInputControl", () => {
       const formState = ref(["a", "b", "c"])
       const defaultFormState = ref(["a", "b", "c"])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       // Move with out-of-bounds indices should be clamped
       control.moveItem(-1, 10) // Should clamp to valid indices
@@ -314,11 +350,13 @@ describe("createArrayInputControl", () => {
       const formState = ref(["first", "second"])
       const defaultFormState = ref(["first", "second"])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       control.moveItem(0, 1) // Swap elements
       expect(control.state.value).toEqual(["second", "first"])
@@ -329,11 +367,13 @@ describe("createArrayInputControl", () => {
       const formState = ref(undefined)
       const defaultFormState = ref([])
       const errors = ref({})
-      const control = createArrayInputControl(
-        formState,
+      const controlsCache = new Map()
+      const control = createArrayInputControl({
+        state: formState,
         defaultFormState,
-        errors
-      )
+        errors,
+        controlsCache
+      })
 
       // Should not throw an error
       control.moveItem(0, 1)

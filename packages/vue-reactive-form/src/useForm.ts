@@ -1,7 +1,5 @@
-import { ref, type Ref } from "@vue/reactivity"
-import { cloneDeep, groupBy } from "lodash-es"
+import { groupBy } from "lodash-es"
 import type {
-  FormErrors,
   FormRoot,
   HandleSubmitOptions,
   UseFormOptions
@@ -9,7 +7,7 @@ import type {
 import type { PartialOrPrimitive } from "./types/utils"
 import { createControlsTree } from "./controlsTree"
 import { standardValidate } from "./validation"
-import type { InputControl } from "./types/controls"
+import { useFormContext } from "./useFormContext"
 
 export const useForm = <TState, TValidatedState = TState>(
   defaultState?: PartialOrPrimitive<TState>,
@@ -17,19 +15,10 @@ export const useForm = <TState, TValidatedState = TState>(
 ): FormRoot<TState, TValidatedState> => {
   const { validationSchema } = options
 
-  const defaultFormState = ref(cloneDeep(defaultState)) as Ref<
-    PartialOrPrimitive<TState | undefined>
-  >
-  const state = ref(cloneDeep(defaultState)) as Ref<PartialOrPrimitive<TState>>
-  const controlsCache = new Map<string, InputControl<unknown>>()
-  const errors = ref<FormErrors>({})
+  const formContext = useFormContext(defaultState)
+  const { state, errors } = formContext
 
-  const form = createControlsTree(
-    state,
-    defaultFormState,
-    errors,
-    controlsCache
-  )
+  const form = createControlsTree(formContext)
 
   const validate = async () => {
     if (!validationSchema) {
