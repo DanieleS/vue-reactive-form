@@ -3,8 +3,8 @@ import type { FormNode } from "./formNodes"
 import type { InputControl } from "./controls"
 import type { ValidationIssue } from "../validation"
 import type { Ref } from "@vue/reactivity"
-import type { Required } from "ts-toolbelt/out/Object/Required"
 import type { RequiredOrPrimitive } from "./utils"
+import type { PropertyPath } from "lodash-es"
 
 export type ControlsCache = Map<string, InputControl<unknown>>
 /**
@@ -26,6 +26,33 @@ export type FormContext<TState> = {
   errors: Ref<FormErrors>
   /** Cache of input controls to avoid re-creating them */
   controlsCache: ControlsCache
+  /**
+   * Sets the state of a specific field in the form.
+   *
+   * @param path The path to the field, using dot notation.
+   * @param value The new value for the field.
+   * @param stateType The type of state to set. "default" for the default state, "current" for the current state.
+   */
+  setFieldState: (
+    path: PropertyPath,
+    value: unknown,
+    stateType: "default" | "current"
+  ) => void
+  /**
+   * Gets the state of a specific field in the form.
+   *
+   * @param path The path to the field, using dot notation.
+   * @param stateType The type of state to get. "default" for the default state, "current" for the current state.
+   * @returns The value of the field.
+   */
+  getFieldState: (path: PropertyPath, stateType: "default" | "current") => any
+  /**
+   * Gets the validation errors for a specific field in the form.
+   *
+   * @param path The path to the field, using dot notation.
+   * @returns The list of validation issues for the field.
+   */
+  getFieldErrors: (path: PropertyPath) => ValidationIssue[]
 }
 
 export type ValidateOn = "submit" | "change"

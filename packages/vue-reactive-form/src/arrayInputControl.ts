@@ -4,7 +4,7 @@ import type { ArrayInputControl } from "./types/controls"
 import type { FormContext } from "./types/useForm"
 
 export const createArrayInputControl = <TState extends Array<unknown>>(
-  context: FormContext<unknown>,
+  context: Omit<FormContext<unknown>, "controlsCache">,
   path: (string | number | symbol)[] = []
 ): ArrayInputControl<TState> => {
   const inputControl = createInputControl<TState>(context, path)

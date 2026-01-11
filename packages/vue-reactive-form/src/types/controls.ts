@@ -8,7 +8,7 @@ import type { PartialOrPrimitive } from "./utils"
  */
 export type InputControl<T> = {
   state: Ref<PartialOrPrimitive<T> | undefined>
-  defaultValue: ComputedRef<PartialOrPrimitive<T> | undefined>
+  defaultState: ComputedRef<PartialOrPrimitive<T> | undefined>
   dirty: ComputedRef<boolean>
   /**
    * When true it means that the current state is different from the default state.
@@ -32,7 +32,7 @@ export type InputControl<T> = {
    *
    * @param newDefaultValue
    */
-  updateDefaultValue: (newDefaultValue?: PartialOrPrimitive<T>) => void
+  updateDefaultState: (newDefaultValue?: PartialOrPrimitive<T>) => void
 }
 
 /**
