@@ -4,7 +4,7 @@ import type { ArrayFormNode } from "@vue-reactive-form/core"
 type Props<T extends any[]> = {
   label: string
   node: ArrayFormNode<T>
-  error?: string
+  errors?: string[]
 }
 
 defineProps<Props<TComponentGeneric>>()
@@ -19,8 +19,10 @@ defineProps<Props<TComponentGeneric>>()
       </button>
     </div>
 
-    <div v-if="error" class="error-message">
-      {{ error }}
+    <div v-if="errors?.length" class="error-container">
+      <div v-for="error in errors" :key="error" class="error-message">
+        {{ error }}
+      </div>
     </div>
 
     <div class="items-container">
@@ -64,6 +66,12 @@ defineProps<Props<TComponentGeneric>>()
   color: var(--b-text);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
 }
 
 .error-message {

@@ -4,7 +4,7 @@ import type { InputHTMLAttributes } from "vue"
 interface Props {
   label: string
   type: InputHTMLAttributes["type"]
-  error?: string
+  errors?: string[]
 }
 
 const modelValue = defineModel<T>()
@@ -18,8 +18,10 @@ defineProps<Props>()
       <div class="label-text">{{ label }}</div>
       <input v-model="modelValue" :type class="input-field" />
     </label>
-    <div v-if="error" class="error-message">
-      {{ error }}
+    <div v-if="errors?.length" class="error-container">
+      <div v-for="error in errors" :key="error" class="error-message">
+        {{ error }}
+      </div>
     </div>
   </div>
 </template>
@@ -65,10 +67,16 @@ defineProps<Props>()
   color: #9ca3af;
 }
 
+.error-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin-top: 0.25rem;
+}
+
 .error-message {
   color: #ef4444;
   font-family: var(--b-font-mono);
   font-size: 0.7rem;
-  margin-top: 0.25rem;
 }
 </style>

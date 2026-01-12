@@ -1,39 +1,27 @@
-import type { Ref } from "@vue/reactivity"
 import { createArrayInputControl } from "./arrayInputControl"
 import { get } from "lodash-es"
 import type { InputControl } from "./types/controls"
-import type { ControlsCache, FormErrors } from "./types/useForm"
+import type { FormContext } from "./types/useForm"
 
 const getInputControl = (
-  formState: Ref<unknown>,
-  defaultFormState: Ref<unknown>,
-  formErrors: Ref<FormErrors>,
-  controlsCache: ControlsCache,
+  context: FormContext<unknown>,
   path: (string | number | symbol)[]
 ) => {
+  const { controlsCache } = context
   const concatenatedPath: string = path.join(".")
 
   if (!controlsCache.has(concatenatedPath)) {
     controlsCache.set(
       concatenatedPath,
-      createArrayInputControl(
-        formState,
-        defaultFormState,
-        formErrors,
-        path
-      ) as InputControl<unknown>
+      createArrayInputControl(context, path) as InputControl<unknown>
     )
   }
 
   return controlsCache.get(concatenatedPath)
 }
 
-export const createControlsTree = <TState>(
-  formState: Ref<TState>,
-  defaultFormState: Ref<TState | undefined>,
-  formErrors: Ref<FormErrors>,
-  controlsCache: ControlsCache
-) => {
+export const createControlsTree = <TState>(context: FormContext<TState>) => {
+  const { state: formState } = context
   const buildProxyHandler = (path: (string | number | symbol)[] = []) => ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     get(target: any, handlerPath: string | number | symbol) {
@@ -44,30 +32,14 @@ export const createControlsTree = <TState>(
           const array = get(formState.value, path) ?? []
           for (let i = 0; i < array.length; i++) {
             const iteratorPath = [...path, i]
-            target[i] = buildProxyControl(
-              formState,
-              defaultFormState,
-              formErrors,
-              controlsCache,
-              iteratorPath
-            )
+            target[i] = buildProxyControl(context, iteratorPath)
             yield target[i]
           }
         }
       }
 
       if (!Reflect.get(target, handlerPath)) {
-        Reflect.set(
-          target,
-          handlerPath,
-          buildProxyControl(
-            formState,
-            defaultFormState,
-            formErrors,
-            controlsCache,
-            fullPath
-          )
-        )
+        Reflect.set(target, handlerPath, buildProxyControl(context, fullPath))
       }
 
       return Reflect.get(target, handlerPath)
@@ -75,31 +47,16 @@ export const createControlsTree = <TState>(
   })
 
   const buildProxyControl = (
-    formState: Ref<TState>,
-    defaultFormState: Ref<TState | undefined>,
-    formErrors: Ref<FormErrors>,
-    controlsCache: ControlsCache,
+    context: FormContext<TState>,
     path: (string | number | symbol)[]
   ) => {
     return new Proxy(
       {
-        $control: getInputControl(
-          formState,
-          defaultFormState,
-          formErrors,
-          controlsCache,
-          path
-        )
+        $control: getInputControl(context as FormContext<unknown>, path)
       },
       buildProxyHandler(path)
     )
   }
 
-  return buildProxyControl(
-    formState,
-    defaultFormState,
-    formErrors,
-    controlsCache,
-    []
-  )
+  return buildProxyControl(context, [])
 }

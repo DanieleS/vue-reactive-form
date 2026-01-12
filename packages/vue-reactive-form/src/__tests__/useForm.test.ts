@@ -250,7 +250,7 @@ describe("useForm", () => {
 
       // Check initial state
       expect(form.$control.isValid.value).toBe(true)
-      expect(form.$control.errorMessage.value).toBe(undefined)
+      expect(form.$control.errorMessages.value).toEqual([])
 
       // Validate and check if control state updates
       const result = await validate()
@@ -258,7 +258,7 @@ describe("useForm", () => {
 
       // Check if control validity is updated after validation
       expect(form.$control.isValid.value).toBe(false)
-      expect(form.$control.errorMessage.value).toBe("Name is required")
+      expect(form.$control.errorMessages.value).toEqual(["Name is required"])
     })
 
     it("should validate object properties correctly", async () => {
@@ -279,11 +279,15 @@ describe("useForm", () => {
 
       // Check name field validation
       expect(form.name.$control.isValid.value).toBe(false)
-      expect(form.name.$control.errorMessage.value).toBe("Name is required")
+      expect(form.name.$control.errorMessages.value).toEqual([
+        "Name is required"
+      ])
 
       // Check age field validation
       expect(form.age.$control.isValid.value).toBe(false)
-      expect(form.age.$control.errorMessage.value).toBe("Age must be positive")
+      expect(form.age.$control.errorMessages.value).toEqual([
+        "Age must be positive"
+      ])
     })
 
     it("should clear errors when validation succeeds", async () => {
@@ -301,7 +305,7 @@ describe("useForm", () => {
 
       expect(result).toBe("hello")
       expect(form.$control.isValid.value).toBe(true)
-      expect(form.$control.errorMessage.value).toBe(undefined)
+      expect(form.$control.errorMessages.value).toEqual([])
     })
 
     it("should validate arrays correctly", async () => {
@@ -316,9 +320,9 @@ describe("useForm", () => {
 
       // Check array validation
       expect(form.$control.isValid.value).toBe(false)
-      expect(form.$control.errorMessage.value).toBe(
+      expect(form.$control.errorMessages.value).toEqual([
         "At least one item required"
-      )
+      ])
     })
 
     it("should validate nested arrays in objects correctly", async () => {
@@ -340,14 +344,14 @@ describe("useForm", () => {
       // Check name field (should be valid)
       expect(form.name).toBeDefined()
       expect(form.name.$control.isValid.value).toBe(true)
-      expect(form.name.$control.errorMessage.value).toBe(undefined)
+      expect(form.name.$control.errorMessages.value).toEqual([])
 
       // Check tags array validation
       expect(form.tags).toBeDefined()
       expect(form.tags?.$control.isValid.value).toBe(false)
-      expect(form.tags?.$control.errorMessage.value).toBe(
+      expect(form.tags?.$control.errorMessages.value).toEqual([
         "At least one tag required"
-      )
+      ])
     })
   })
 
@@ -437,7 +441,7 @@ describe("useForm", () => {
       // Change value, should not trigger validation
       form.name.$control.state.value = ""
 
-      expect(errors.value.name).toBeUndefined()
+      expect(errors.value.name).toEqual([])
 
       // Now submit
       const onSuccess = vi.fn()
@@ -463,7 +467,7 @@ describe("useForm", () => {
       // Change value, should not trigger validation
       form.name.$control.state.value = ""
 
-      expect(errors.value.name).toBeUndefined()
+      expect(errors.value.name).toEqual([])
 
       // Now submit
       const onSuccess = vi.fn()

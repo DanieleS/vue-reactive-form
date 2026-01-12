@@ -1,43 +1,9 @@
-import { computed, type Ref } from "@vue/reactivity"
-import { get, isEqual, isObject, set } from "lodash-es"
+import { computed } from "@vue/reactivity"
+import { isEqual, isObject, type PropertyPath } from "lodash-es"
 import { deepPick } from "./utils"
 import type { InputControl } from "./types/controls"
-import type { FormErrors } from "./types/useForm"
+import type { FormContext } from "./types/useForm"
 import type { PartialOrPrimitive } from "./types/utils"
-
-/**
- * This function gets the value of a property in a reactive object, given the path.
- *
- * If the path is empty, it returns the object itself.
- *
- * @param target The reactive object
- * @param p The path of the property
- * @returns The value of the property
- */
-const formGet = (target: any, p: (string | symbol | number)[]) =>
-  p.length ? get(target, p) : target
-
-const errorsGet = (target: FormErrors, p: (string | symbol | number)[]) =>
-  target[p.length ? p.join(".") : ""] ?? []
-
-/**
- * This function sets the value of a property in a reactive object, given the path.
- *
- * @param target A ref to the object
- * @param p The path of the property
- * @param newVal The new value of the property
- */
-const formSet = (
-  target: Ref<any>,
-  p: (string | symbol | number)[],
-  newVal: any
-) => {
-  if (p.length) {
-    set(target, ["value", ...p], newVal)
-  } else {
-    target.value = newVal
-  }
-}
 
 const isDirty = (value: unknown, defaultValue: unknown) => {
   /**
@@ -55,52 +21,51 @@ const isDirty = (value: unknown, defaultValue: unknown) => {
 }
 
 export const createInputControl = <TState>(
-  formState: Ref<unknown>,
-  defaultFormState: Ref<unknown>,
-  formErrors: Ref<FormErrors>,
-  path: (string | number | symbol)[] = []
+  context: Omit<FormContext<unknown>, "controlsCache">,
+  path: PropertyPath = []
 ): InputControl<TState> => {
+  const { setFieldState, getFieldState, getFieldErrors } = context
   // Updating the default value should be discouraged, so it's exposed as a read-only computed
-  const defaultValue = computed(() => formGet(defaultFormState.value, path))
+  const defaultState = computed(() => getFieldState(path, "default"))
   const state = computed({
     get() {
-      return formGet(formState.value, path)
+      return getFieldState(path, "current")
     },
     set(value: TState) {
-      formSet(formState, path, value)
+      setFieldState(path, value, "current")
     }
   })
 
-  const dirty = computed(() => isDirty(state.value, defaultValue.value))
+  const dirty = computed(() => isDirty(state.value, defaultState.value))
 
   const isValid = computed(() => {
-    const issues = errorsGet(formErrors.value, path)
+    const issues = getFieldErrors(path)
     return issues.length === 0
   })
 
-  const errorMessage = computed<string | undefined>(() => {
-    const issues = errorsGet(formErrors.value, path)
-    return issues[0]?.message
+  const errorMessages = computed<string[]>(() => {
+    const issues = getFieldErrors(path)
+    return issues.map((issue) => issue.message)
   })
 
   const clear = () => {
-    formSet(formState, path, undefined)
+    setFieldState(path, undefined, "current")
   }
   const reset = () => {
-    state.value = defaultValue.value
+    state.value = defaultState.value
   }
-  const updateDefaultValue = (newDefaultValue?: PartialOrPrimitive<TState>) => {
-    formSet(defaultFormState, path, newDefaultValue)
+  const updateDefaultState = (newDefaultState?: PartialOrPrimitive<TState>) => {
+    setFieldState(path, newDefaultState, "default")
   }
 
   return {
-    defaultValue,
+    defaultState,
     state,
     dirty,
     isValid,
-    errorMessage,
+    errorMessages,
     clear,
     reset,
-    updateDefaultValue
+    updateDefaultState
   }
 }

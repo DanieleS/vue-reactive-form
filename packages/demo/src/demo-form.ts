@@ -41,9 +41,9 @@ export type ValidProjectFormState = {
 }
 
 export const projectFormSchema: Schema<ValidProjectFormState> = object({
-  name: string().required(),
+  name: string().required().max(25),
   description: string().required(),
-  budget: number().required(),
+  budget: number().required().min(0),
   isPublic: boolean().required(),
   client: object({
     name: string().required(),
@@ -62,5 +62,5 @@ export const projectFormSchema: Schema<ValidProjectFormState> = object({
     string()
       .oneOf(["infrastructure", "frontend", "backend", "full-stack"])
       .required()
-  ).required()
+  )
 })

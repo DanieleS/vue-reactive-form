@@ -35,21 +35,21 @@ const onSubmit = handleSubmit({
           <LabeledInput
             label="Name"
             v-model="form.name.$control.state.value"
-            :error="form.name.$control.errorMessage.value"
+            :errors="form.name.$control.errorMessages.value"
             type="text"
           />
 
           <LabeledInput
             label="Description"
             v-model="form.description.$control.state.value"
-            :error="form.description.$control.errorMessage.value"
+            :errors="form.description.$control.errorMessages.value"
             type="text"
           />
 
           <LabeledInput
             label="Budget"
             v-model="form.budget.$control.state.value"
-            :error="form.budget.$control.errorMessage.value"
+            :errors="form.budget.$control.errorMessages.value"
             type="number"
           />
 
@@ -68,51 +68,57 @@ const onSubmit = handleSubmit({
               <span>Is public</span>
             </label>
             <div
-              v-if="form.isPublic.$control.errorMessage.value"
-              class="error-message"
+              v-if="form.isPublic.$control.errorMessages.value.length"
+              class="error-container"
             >
-              {{ form.isPublic.$control.errorMessage.value }}
+              <div
+                v-for="error in form.isPublic.$control.errorMessages.value"
+                :key="error"
+                class="error-message"
+              >
+                {{ error }}
+              </div>
             </div>
           </div>
 
           <LabeledInput
             label="Client name"
             v-model="form.client.name.$control.state.value"
-            :error="form.client.name.$control.errorMessage.value"
+            :errors="form.client.name.$control.errorMessages.value"
             type="text"
           />
 
           <LabeledInput
             label="Client street address"
             v-model="form.client.address.street.$control.state.value"
-            :error="form.client.address.street.$control.errorMessage.value"
+            :errors="form.client.address.street.$control.errorMessages.value"
             type="text"
           />
 
           <LabeledInput
             label="Client city"
             v-model="form.client.address.city.$control.state.value"
-            :error="form.client.address.city.$control.errorMessage.value"
+            :errors="form.client.address.city.$control.errorMessages.value"
             type="text"
           />
 
           <ArrayInput
             label="Team members"
             :node="form.teamMembers"
-            :error="form.teamMembers.$control.errorMessage.value"
+            :errors="form.teamMembers.$control.errorMessages.value"
           >
             <template #="{ node }">
               <div class="grid-col-2">
                 <LabeledInput
                   label="Name"
                   v-model="node.name.$control.state.value"
-                  :error="node.name.$control.errorMessage.value"
+                  :errors="node.name.$control.errorMessages.value"
                   type="text"
                 />
                 <LabeledInput
                   label="Hourly rate"
                   v-model="node.hourlyRate.$control.state.value"
-                  :error="node.hourlyRate.$control.errorMessage.value"
+                  :errors="node.hourlyRate.$control.errorMessages.value"
                   type="number"
                 />
               </div>
@@ -122,14 +128,14 @@ const onSubmit = handleSubmit({
           <ArrayInput
             label="Tags"
             :node="form.tags"
-            :error="form.tags.$control.errorMessage.value"
+            :errors="form.tags.$control.errorMessages.value"
           >
             <template #="{ node }">
               <div class="grid-full">
                 <LabeledInput
                   label="Name"
                   v-model="node.$control.state.value"
-                  :error="node.$control.errorMessage.value"
+                  :errors="node.$control.errorMessages.value"
                   type="text"
                 />
               </div>
@@ -331,11 +337,17 @@ body {
   line-height: 1.3;
 }
 
+.error-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin-top: 0.25rem;
+}
+
 .error-message {
   color: #ef4444;
   font-family: var(--b-font-mono);
   font-size: 0.7rem;
-  margin-top: 0.25rem;
 }
 
 /* Helpers for ArrayInput slots */

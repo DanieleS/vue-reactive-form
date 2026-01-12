@@ -3,8 +3,8 @@ import type { FormNode } from "./formNodes"
 import type { InputControl } from "./controls"
 import type { ValidationIssue } from "../validation"
 import type { Ref } from "@vue/reactivity"
-import type { Required } from "ts-toolbelt/out/Object/Required"
 import type { RequiredOrPrimitive } from "./utils"
+import type { PropertyPath } from "lodash-es"
 
 export type ControlsCache = Map<string, InputControl<unknown>>
 /**
@@ -12,6 +12,55 @@ export type ControlsCache = Map<string, InputControl<unknown>>
  * The errors are stored with paths in dot notation as keys, and the list of issues for the property at such a path as the value.
  */
 export type FormErrors = Record<string, ValidationIssue[]>
+
+/**
+ * Internal context shared across the form's control tree.
+ * Contains all the core reactive state needed by form controls.
+ */
+export type FormContext<TState> = {
+  /** The current form state */
+  state: Ref<TState>
+  /** The default/initial form state, used for dirty checking and reset */
+  defaultFormState: Ref<TState | undefined>
+  /** Form-wide validation errors keyed by path */
+  errors: Ref<FormErrors>
+  /** Cache of input controls to avoid re-creating them */
+  controlsCache: ControlsCache
+  /**
+   * Sets the state of a specific field in the form.
+   *
+   * @param path The path to the field, using dot notation.
+   * @param value The new value for the field.
+   * @param stateType The type of state to set. "default" for the default state, "current" for the current state.
+   */
+  setFieldState: (
+    path: PropertyPath,
+    value: unknown,
+    stateType: "default" | "current"
+  ) => void
+  /**
+   * Gets the state of a specific field in the form.
+   *
+   * @param path The path to the field, using dot notation.
+   * @param stateType The type of state to get. "default" for the default state, "current" for the current state.
+   * @returns The value of the field.
+   */
+  getFieldState: (path: PropertyPath, stateType: "default" | "current") => any
+  /**
+   * Gets the validation errors for a specific field in the form.
+   *
+   * @param path The path to the field, using dot notation.
+   * @returns The list of validation issues for the field.
+   */
+  getFieldErrors: (path: PropertyPath) => ValidationIssue[]
+  /**
+   * Sets the validation errors for a specific field in the form.
+   *
+   * @param path The path to the field, using dot notation.
+   * @param errors The list of validation issues for the field.
+   */
+  setFieldErrors: (path: PropertyPath, errors: ValidationIssue[]) => void
+}
 
 export type ValidateOn = "submit" | "change"
 
