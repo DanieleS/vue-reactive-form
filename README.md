@@ -1,10 +1,10 @@
 # vue-reactive-form
 
-`vue-reactive-form` is a lightweight, type-safe form validation library for Vue 3 that leverages Vue's reactivity system to provide a seamless and flexible way to manage form state and validation.
+Lightweight, type-safe form validation library for Vue 3 that leverages Vue's reactivity system to provide a seamless and flexible way to manage form state and validation withut depending on strings to link inputs to the form.
 
 🚀 **Get started in minutes** — no boilerplate, no learning curve. Just reactive forms that work.
 
-Check out the [live demo](https://vue-reactive-form.github.io/core/) for a hands-on example of how to use `vue-reactive-form`.
+Check out the [live demo](https://vue-reactive-form.github.io/vue-reactive-form/) for a hands-on example of how to use `vue-reactive-form`.
 
 ## Features
 
