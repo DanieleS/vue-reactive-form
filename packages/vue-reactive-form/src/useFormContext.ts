@@ -4,7 +4,7 @@ import type { PartialOrPrimitive } from "./types/utils"
 import { cloneDeep, get, set, type PropertyPath } from "lodash-es"
 import type { ValidationIssue } from "./validation"
 
-const getValidationIssuesPath = (path: PropertyPath) => {
+const getPathAsString = (path: PropertyPath) => {
   return Array.isArray(path) && path.length ? path.join(".") : ""
 }
 
@@ -17,6 +17,7 @@ export const useFormContext = <TState>(
   const state = ref(cloneDeep(defaultState)) as Ref<PartialOrPrimitive<TState>>
   const controlsCache: ControlsCache = new Map()
   const errors = ref<FormErrors>({})
+  const touchedFields = ref(new Set<string>())
 
   const setFieldState = (
     path: PropertyPath,
@@ -31,9 +32,9 @@ export const useFormContext = <TState>(
       toBeUpdated.value = value
     }
 
-    // When updating the state of the field, we clear any validation issues,
-    // so they don't persist until the next validation is performed
     if (stateType === "current") {
+      // When updating the state of the field, we clear any validation issues,
+      // so they don't persist until the next validation is performed
       setFieldErrors(path, [])
     }
   }
@@ -50,11 +51,19 @@ export const useFormContext = <TState>(
   }
 
   const getFieldErrors = (path: PropertyPath) => {
-    return errors.value[getValidationIssuesPath(path)] ?? []
+    return errors.value[getPathAsString(path)] ?? []
   }
 
   const setFieldErrors = (path: PropertyPath, issues: ValidationIssue[]) => {
-    errors.value[getValidationIssuesPath(path)] = issues
+    errors.value[getPathAsString(path)] = issues
+  }
+
+  const setFieldAsTouched = (path: PropertyPath) => {
+    touchedFields.value?.add(getPathAsString(path))
+  }
+
+  const isFieldTouched = (path: PropertyPath) => {
+    return touchedFields.value?.has(getPathAsString(path))
   }
 
   return {
@@ -63,8 +72,10 @@ export const useFormContext = <TState>(
     errors,
     controlsCache,
     setFieldState,
+    setFieldErrors,
+    setFieldAsTouched,
     getFieldState,
     getFieldErrors,
-    setFieldErrors
+    isFieldTouched
   }
 }
