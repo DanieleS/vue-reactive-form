@@ -29,7 +29,7 @@ export type FormContext<TState> = {
   /**
    * Sets the state of a specific field in the form.
    *
-   * @param path The path to the field, using dot notation.
+   * @param path The path to the field.
    * @param value The new value for the field.
    * @param stateType The type of state to set. "default" for the default state, "current" for the current state.
    */
@@ -41,7 +41,7 @@ export type FormContext<TState> = {
   /**
    * Gets the state of a specific field in the form.
    *
-   * @param path The path to the field, using dot notation.
+   * @param path The path to the field.
    * @param stateType The type of state to get. "default" for the default state, "current" for the current state.
    * @returns The value of the field.
    */
@@ -49,17 +49,30 @@ export type FormContext<TState> = {
   /**
    * Gets the validation errors for a specific field in the form.
    *
-   * @param path The path to the field, using dot notation.
+   * @param path The path to the field.
    * @returns The list of validation issues for the field.
    */
   getFieldErrors: (path: PropertyPath) => ValidationIssue[]
   /**
    * Sets the validation errors for a specific field in the form.
    *
-   * @param path The path to the field, using dot notation.
+   * @param path The path to the field.
    * @param errors The list of validation issues for the field.
    */
   setFieldErrors: (path: PropertyPath, errors: ValidationIssue[]) => void
+  /**
+   * Sets a specific field as touched.
+   *
+   * @param path The path to the field.
+   */
+  setFieldAsTouched: (path: PropertyPath) => void
+  /**
+   * Checks if a specific field has been touched.
+   *
+   * @param path The path to the field.
+   * @returns True if the field has been touched, false otherwise.
+   */
+  isFieldTouched: (path: PropertyPath) => boolean
 }
 
 export type ValidateOn = "submit" | "change"
