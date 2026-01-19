@@ -24,7 +24,13 @@ export const createInputControl = <TState>(
   context: Omit<FormContext<unknown>, "controlsCache">,
   path: PropertyPath = []
 ): InputControl<TState> => {
-  const { setFieldState, getFieldState, getFieldErrors } = context
+  const {
+    setFieldState,
+    getFieldState,
+    getFieldErrors,
+    isFieldTouched,
+    setFieldAsTouched
+  } = context
   // Updating the default value should be discouraged, so it's exposed as a read-only computed
   const defaultState = computed(() => getFieldState(path, "default"))
   const state = computed({
@@ -37,6 +43,8 @@ export const createInputControl = <TState>(
   })
 
   const dirty = computed(() => isDirty(state.value, defaultState.value))
+
+  const touched = computed(() => isFieldTouched(path))
 
   const isValid = computed(() => {
     const issues = getFieldErrors(path)
@@ -58,14 +66,20 @@ export const createInputControl = <TState>(
     setFieldState(path, newDefaultState, "default")
   }
 
+  const setAsTouched = () => {
+    setFieldAsTouched(path)
+  }
+
   return {
     defaultState,
     state,
     dirty,
+    touched,
     isValid,
     errorMessages,
     clear,
     reset,
-    updateDefaultState
+    updateDefaultState,
+    setAsTouched
   }
 }

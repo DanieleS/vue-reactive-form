@@ -176,6 +176,69 @@ describe("createInputControl", () => {
         expect(control.errorMessages.value).toEqual([])
       })
     })
+
+    describe("touched state", () => {
+      it("should initially be untouched", () => {
+        const context = useFormContext("bar")
+        const control = createInputControl(context)
+
+        expect(control.touched.value).toBe(false)
+      })
+
+      it("should become touched after calling setAsTouched", () => {
+        const context = useFormContext("bar")
+        const control = createInputControl(context)
+
+        expect(control.touched.value).toBe(false)
+
+        control.setAsTouched()
+
+        expect(control.touched.value).toBe(true)
+      })
+
+      it("should remain touched after multiple setAsTouched calls", () => {
+        const context = useFormContext("bar")
+        const control = createInputControl(context)
+
+        control.setAsTouched()
+        control.setAsTouched()
+
+        expect(control.touched.value).toBe(true)
+      })
+
+      it("should remain touched after state changes", () => {
+        const context = useFormContext("bar")
+        const control = createInputControl(context)
+
+        control.setAsTouched()
+        expect(control.touched.value).toBe(true)
+
+        control.state.value = "new value"
+
+        expect(control.touched.value).toBe(true)
+      })
+
+      it("should remain touched after reset", () => {
+        const context = useFormContext("bar")
+        const control = createInputControl(context)
+
+        control.setAsTouched()
+        control.state.value = "changed"
+        control.reset()
+
+        expect(control.touched.value).toBe(true)
+      })
+
+      it("should remain touched after clear", () => {
+        const context = useFormContext("bar")
+        const control = createInputControl(context)
+
+        control.setAsTouched()
+        control.clear()
+
+        expect(control.touched.value).toBe(true)
+      })
+    })
   })
 
   describe("When state is an object", () => {
@@ -397,6 +460,79 @@ describe("createInputControl", () => {
 
         expect(nameControl.isValid.value).toBe(true)
         expect(nameControl.errorMessages.value).toEqual([])
+      })
+    })
+
+    describe("touched state for object paths", () => {
+      it("should initially be untouched for nested paths", () => {
+        const context = useFormContext({ name: "John", age: 30 })
+        const nameControl = createInputControl(context, ["name"])
+        const ageControl = createInputControl(context, ["age"])
+
+        expect(nameControl.touched.value).toBe(false)
+        expect(ageControl.touched.value).toBe(false)
+      })
+
+      it("should touch only the specific nested field", () => {
+        const context = useFormContext({ name: "John", age: 30 })
+        const nameControl = createInputControl(context, ["name"])
+        const ageControl = createInputControl(context, ["age"])
+
+        nameControl.setAsTouched()
+
+        expect(nameControl.touched.value).toBe(true)
+        expect(ageControl.touched.value).toBe(false)
+      })
+
+      it("should handle deeply nested paths independently", () => {
+        const context = useFormContext({
+          user: {
+            profile: { name: "John" },
+            settings: { theme: "dark" }
+          }
+        })
+        const nameControl = createInputControl(context, [
+          "user",
+          "profile",
+          "name"
+        ])
+        const themeControl = createInputControl(context, [
+          "user",
+          "settings",
+          "theme"
+        ])
+
+        nameControl.setAsTouched()
+
+        expect(nameControl.touched.value).toBe(true)
+        expect(themeControl.touched.value).toBe(false)
+
+        themeControl.setAsTouched()
+
+        expect(nameControl.touched.value).toBe(true)
+        expect(themeControl.touched.value).toBe(true)
+      })
+
+      it("should remain touched after state changes on nested path", () => {
+        const context = useFormContext({ name: "John", age: 30 })
+        const nameControl = createInputControl(context, ["name"])
+
+        nameControl.setAsTouched()
+        nameControl.state.value = "Jane"
+
+        expect(nameControl.touched.value).toBe(true)
+      })
+
+      it("should remain touched after reset on nested path", () => {
+        const context = useFormContext({ name: "John", age: 30 })
+        const nameControl = createInputControl(context, ["name"])
+
+        nameControl.setAsTouched()
+        nameControl.state.value = "Jane"
+        nameControl.reset()
+
+        expect(nameControl.touched.value).toBe(true)
+        expect(nameControl.state.value).toBe("John")
       })
     })
   })
@@ -682,6 +818,66 @@ describe("createInputControl", () => {
           "Name is required",
           "Name must be at least 2 characters"
         ])
+      })
+    })
+
+    describe("touched state for array paths", () => {
+      it("should initially be untouched for array elements", () => {
+        const context = useFormContext([1, 2, 3])
+        const firstControl = createInputControl(context, [0])
+        const secondControl = createInputControl(context, [1])
+
+        expect(firstControl.touched.value).toBe(false)
+        expect(secondControl.touched.value).toBe(false)
+      })
+
+      it("should touch only the specific array element", () => {
+        const context = useFormContext([1, 2, 3])
+        const firstControl = createInputControl(context, [0])
+        const secondControl = createInputControl(context, [1])
+
+        firstControl.setAsTouched()
+
+        expect(firstControl.touched.value).toBe(true)
+        expect(secondControl.touched.value).toBe(false)
+      })
+
+      it("should handle touched state for objects within arrays", () => {
+        const context = useFormContext([
+          { name: "John", age: 30 },
+          { name: "Jane", age: 25 }
+        ])
+        const firstNameControl = createInputControl(context, [0, "name"])
+        const secondNameControl = createInputControl(context, [1, "name"])
+        const firstAgeControl = createInputControl(context, [0, "age"])
+
+        firstNameControl.setAsTouched()
+
+        expect(firstNameControl.touched.value).toBe(true)
+        expect(secondNameControl.touched.value).toBe(false)
+        expect(firstAgeControl.touched.value).toBe(false)
+      })
+
+      it("should remain touched after state changes on array element", () => {
+        const context = useFormContext([1, 2, 3])
+        const firstControl = createInputControl(context, [0])
+
+        firstControl.setAsTouched()
+        firstControl.state.value = 10
+
+        expect(firstControl.touched.value).toBe(true)
+      })
+
+      it("should remain touched after reset on array element", () => {
+        const context = useFormContext([1, 2, 3])
+        const firstControl = createInputControl(context, [0])
+
+        firstControl.setAsTouched()
+        firstControl.state.value = 10
+        firstControl.reset()
+
+        expect(firstControl.touched.value).toBe(true)
+        expect(firstControl.state.value).toBe(1)
       })
     })
   })
