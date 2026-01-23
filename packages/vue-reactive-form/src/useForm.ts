@@ -1,4 +1,5 @@
 import { groupBy } from "lodash-es"
+import { toValue } from "@vue/reactivity"
 import type {
   FormRoot,
   HandleSubmitOptions,
@@ -21,7 +22,8 @@ export const useForm = <TState, TValidatedState = TState>(
   const form = createControlsTree(formContext)
 
   const validate = async () => {
-    if (!validationSchema) {
+    const schema = toValue(validationSchema)
+    if (!schema) {
       console.warn(
         "[vue-reactive-form] No validation schema provided. Skipping validation."
       )
@@ -30,7 +32,7 @@ export const useForm = <TState, TValidatedState = TState>(
 
     errors.value = {}
 
-    const result = await standardValidate(validationSchema, state.value)
+    const result = await standardValidate(schema, state.value)
 
     if (!result.success) {
       errors.value = groupBy(

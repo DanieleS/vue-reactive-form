@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest"
+import { ref } from "@vue/reactivity"
 import { useForm } from "../useForm"
 import * as yup from "yup"
 
@@ -482,6 +483,106 @@ describe("useForm", () => {
       expect(
         errors.value.name?.some((issue) => issue.message === "Name is required")
       ).toBe(true)
+    })
+  })
+
+  describe("Reactive validation schema", () => {
+    it("should use updated schema when validation is invoked after schema ref changes", async () => {
+      const lenientSchema = yup.object({
+        name: yup.string()
+      })
+      const strictSchema = yup.object({
+        name: yup.string().required("Name is required")
+      })
+
+      const schemaRef = ref(lenientSchema)
+      const { form, validate } = useForm(
+        { name: "" },
+        { validationSchema: schemaRef }
+      )
+
+      // With lenient schema, empty name should pass
+      let result = await validate()
+      expect(result).toEqual({ name: "" })
+      expect(form.name.$control.isValid.value).toBe(true)
+
+      // Update to strict schema
+      schemaRef.value = strictSchema
+
+      // Now validation should fail
+      result = await validate()
+      expect(result).toBeUndefined()
+      expect(form.name.$control.isValid.value).toBe(false)
+      expect(form.name.$control.errorMessages.value).toEqual([
+        "Name is required"
+      ])
+    })
+
+    it("should handle schema ref going from undefined to defined", async () => {
+      const schema = yup.object({
+        name: yup.string().required("Name is required")
+      })
+
+      const schemaRef = ref<yup.Schema<{ name: string }> | undefined>(undefined)
+      const { form, validate } = useForm(
+        { name: "" },
+        { validationSchema: schemaRef }
+      )
+
+      // With no schema, should return state as-is
+      let result = await validate()
+      expect(result).toEqual({ name: "" })
+
+      // Set the schema
+      schemaRef.value = schema
+
+      // Now validation should work
+      result = await validate()
+      expect(result).toBeUndefined()
+      expect(form.name.$control.isValid.value).toBe(false)
+      expect(form.name.$control.errorMessages.value).toEqual([
+        "Name is required"
+      ])
+    })
+
+    it("should work with plain object schema (non-ref)", async () => {
+      const schema = yup.object({
+        name: yup.string().required("Name is required")
+      })
+
+      const { form, validate } = useForm(
+        { name: "" },
+        { validationSchema: schema }
+      )
+
+      const result = await validate()
+      expect(result).toBeUndefined()
+      expect(form.name.$control.isValid.value).toBe(false)
+      expect(form.name.$control.errorMessages.value).toEqual([
+        "Name is required"
+      ])
+    })
+
+    it("should validate against different schema types after update", async () => {
+      const stringSchema = yup.string().required("String required")
+      const numberSchema = yup.number().required("Number required")
+
+      const schemaRef = ref<yup.Schema>(stringSchema)
+      const { form, validate } = useForm("", { validationSchema: schemaRef })
+
+      // Validate against string schema - empty string should fail
+      let result = await validate()
+      expect(result).toBeUndefined()
+      expect(form.$control.errorMessages.value).toEqual(["String required"])
+
+      // Update to number schema
+      schemaRef.value = numberSchema
+
+      // Validate again - empty string should fail number validation
+      result = await validate()
+      expect(result).toBeUndefined()
+      // Number schema will have different error
+      expect(form.$control.isValid.value).toBe(false)
     })
   })
 })

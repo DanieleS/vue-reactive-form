@@ -2,7 +2,7 @@ import type { StandardSchemaV1 } from "@standard-schema/spec"
 import type { FormNode } from "./formNodes"
 import type { InputControl } from "./controls"
 import type { ValidationIssue } from "../validation"
-import type { Ref } from "@vue/reactivity"
+import type { Ref, MaybeRef } from "@vue/reactivity"
 import type { RequiredOrPrimitive } from "./utils"
 import type { PropertyPath } from "lodash-es"
 
@@ -78,7 +78,9 @@ export type FormContext<TState> = {
 export type ValidateOn = "submit" | "change"
 
 export type UseFormOptions<TState, TValidatedState = TState> = {
-  validationSchema?: StandardSchemaV1<TState, TValidatedState>
+  validationSchema?: MaybeRef<
+    StandardSchemaV1<TState, TValidatedState> | undefined
+  >
 }
 
 export type HandleSubmitOptions<TValidatedState> = {
